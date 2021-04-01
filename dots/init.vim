@@ -57,8 +57,9 @@ Plug 'wakatime/vim-wakatime'
 Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'easymotion/vim-easymotion'
-Plug '/usr/local/opt/fzf' " Search backend
-Plug 'junegunn/fzf.vim' " Search
+" FZF Search
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 " Languages
 Plug 'sheerun/vim-polyglot'
 " Python

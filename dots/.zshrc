@@ -111,6 +111,7 @@ source $ZSH/oh-my-zsh.sh
 # /usr/local/opt/emacs-plus
 alias emacs="/usr/local/opt/emacs-plus/bin/emacs -nw"
 alias vim="nvim"
+# alias ctags='/usr/local/bin/ctags'
 
 # configs
 alias vimconf="nvim ~/.config/nvim/init.vim"
@@ -119,6 +120,9 @@ alias sshconf="nvim ~/.ssh/config"
 
 # brew doctor sugestion
 export PATH="/usr/local/sbin:$PATH"
+
+# to install mysqlclient (that's fking stupid)
+export PATH="/usr/local/opt/mysql-client/bin:$PATH"
 
 # VirtualEnvWrapper
 # export WORKON_HOME=$HOME/.virtualenvs
