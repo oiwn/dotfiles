@@ -116,6 +116,7 @@ alias vim="nvim"
 # configs
 alias vimconf="nvim ~/.config/nvim/init.vim"
 alias zshconf="nvim ~/.zshrc"
+alias tmuxconf="nvim ~/.tmux.conf"
 alias sshconf="nvim ~/.ssh/config"
 
 # brew doctor sugestion
@@ -123,13 +124,6 @@ export PATH="/usr/local/sbin:$PATH"
 
 # to install mysqlclient (that's fking stupid)
 export PATH="/usr/local/opt/mysql-client/bin:$PATH"
-
-# VirtualEnvWrapper
-# export WORKON_HOME=$HOME/.virtualenvs
-# export PROJECT_HOME=$HOME/projects
-# export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
-## export VIRTUALENVWRAPPER_SCRIPT=/usr/local/bin/virtualenvwrapper.sh
-# source /usr/local/bin/virtualenvwrapper.sh
 
 # golang
 # export GOPATH="$HOME/projects/go"
