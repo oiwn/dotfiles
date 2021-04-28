@@ -47,6 +47,7 @@ Plug 'w0rp/ale'
 Plug 'dracula/vim',{ 'as': 'dracula' }
 Plug 'morhetz/gruvbox'
 Plug 'joshdick/onedark.vim'
+Plug 'arcticicestudio/nord-vim'
 Plug 'lifepillar/vim-solarized8'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
@@ -54,7 +55,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'jceb/vim-orgmode'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'wakatime/vim-wakatime'
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+" Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'easymotion/vim-easymotion'
 " FZF Search
@@ -135,7 +136,7 @@ set background=dark
 " onedark dracula monokain
 " solarized8 solarized8_flat
 " solarized8_high solarized8_low
-colorscheme onedark
+colorscheme nord
 
 " Commands
 com! FormatJSON %!python -m json.tool
