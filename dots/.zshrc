@@ -78,6 +78,7 @@ plugins=(
   git
   fzf
   mosh
+  zsh-z
 )
 
 source $ZSH/oh-my-zsh.sh
