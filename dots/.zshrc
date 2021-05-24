@@ -9,6 +9,9 @@ fi
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
+# python breakpoint to ipdb
+export PYTHONBREAKPOINT=ipdb.set_trace
+
 export ZSH_DISABLE_COMPFIX="true"
 
 # If you come from bash you might have to change your $PATH.
