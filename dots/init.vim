@@ -49,6 +49,7 @@ Plug 'morhetz/gruvbox'
 Plug 'joshdick/onedark.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'lifepillar/vim-solarized8'
+Plug 'crusoexia/vim-monokai'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 " Utils
@@ -63,6 +64,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " Languages
 Plug 'sheerun/vim-polyglot'
+" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Python
 Plug 'Vimjas/vim-python-pep8-indent'
 " JavaScript
@@ -104,6 +106,9 @@ let g:airline_detected_modified = 1
 let g:airline_powerline_fonts = 1
 let g:Powerline_symbols = 'fancy'
 
+" Highlight
+let g:python_highlight_all = 1
+
 " Linters and checkers
 
 " ALE
@@ -133,7 +138,7 @@ set rtp+=/usr/local/opt/fzf
 " Colorscheme
 set background=dark
 " options:
-" onedark dracula monokain
+" onedark dracula monokain nord
 " solarized8 solarized8_flat
 " solarized8_high solarized8_low
 colorscheme nord
@@ -156,4 +161,17 @@ nnoremap <leader>fb :Buffers<cr>
 nnoremap <leader>fl :Lines<cr>
 nnoremap <leader>fd :BLines<cr>
 nnoremap <leader>ft :Tags<cr>
+nnoremap <leader>fc :BTags<cr>
 
+" highlights
+" lua <<EOF
+" require'nvim-treesitter.configs'.setup {
+"   ensure_installed = { "python", "yaml", "json", "comment", "css", "html" },
+"   ignore_install = { "ruby" }, -- List of parsers to ignore installing
+"   highlight = {
+"     enable = true,              -- false will disable the whole extension
+"     disable = { "c" },          -- list of language that will be disabled
+"   },
+" }
+" EOF
+"

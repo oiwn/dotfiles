@@ -113,7 +113,7 @@ source $ZSH/oh-my-zsh.sh
 
 # recent install on air somehow run default emacs
 # /usr/local/opt/emacs-plus
-alias emacs="/usr/local/opt/emacs-plus/bin/emacs -nw"
+alias emacs="/usr/local/opt/emacs-plus@28/bin/emacs -nw"
 alias vim="nvim"
 # alias ctags='/usr/local/bin/ctags'
 
@@ -122,6 +122,10 @@ alias vimconf="nvim ~/.config/nvim/init.vim"
 alias zshconf="nvim ~/.zshrc"
 alias tmuxconf="nvim ~/.tmux.conf"
 alias sshconf="nvim ~/.ssh/config"
+
+# temp workaround for mc bug
+# https://midnight-commander.org/ticket/4198
+alias mc='mc -u'
 
 # brew doctor sugestion
 export PATH="/usr/local/sbin:$PATH"
