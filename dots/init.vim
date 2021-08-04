@@ -141,7 +141,7 @@ set background=dark
 " onedark dracula monokain nord
 " solarized8 solarized8_flat
 " solarized8_high solarized8_low
-colorscheme nord
+colorscheme onedark
 
 " Commands
 com! FormatJSON %!python -m json.tool
@@ -153,6 +153,8 @@ nnoremap <leader>n :NERDTreeToggle<cr>
 nnoremap <leader>vs :vsplit<cr>
 " quit from terminal runing inside nvim
 tnoremap <Esc> <C-\><C-n>
+" close all buffers
+nnoremap <leader>o :%bd\|e#<cr>
 
 " fzf bindings
 nnoremap <leader>ff :GFiles<cr>
