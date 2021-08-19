@@ -109,6 +109,9 @@ let g:Powerline_symbols = 'fancy'
 " Highlight
 let g:python_highlight_all = 1
 
+" vim-markdown
+let g:vim_markdown_folding_disabled = 1
+
 " Linters and checkers
 
 " ALE
