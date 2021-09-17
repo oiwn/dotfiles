@@ -46,12 +46,24 @@ Plug 'w0rp/ale'
 " Look and feel
 Plug 'dracula/vim',{ 'as': 'dracula' }
 Plug 'morhetz/gruvbox'
-Plug 'joshdick/onedark.vim'
 Plug 'arcticicestudio/nord-vim'
 Plug 'lifepillar/vim-solarized8'
-Plug 'crusoexia/vim-monokai'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
+" treesetter support
+Plug 'tomasiser/vim-code-dark'
+Plug 'marko-cerovac/material.nvim'
+Plug 'bluz71/vim-nightfly-guicolors'
+Plug 'bluz71/vim-moonfly-colors'
+Plug 'mhartington/oceanic-next'
+Plug 'Th3Whit3Wolf/space-nvim'
+Plug 'tanvirtin/monokai.nvim'
+Plug 'navarasu/onedark.nvim'
+Plug 'shaunsingh/moonlight.nvim'
+Plug 'rose-pine/neovim'
+Plug 'sainnhe/sonokai'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
+Plug 'rafamadriz/neon'
 " Utils
 Plug 'jceb/vim-orgmode'
 Plug 'editorconfig/editorconfig-vim'
@@ -64,7 +76,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " Languages
 Plug 'sheerun/vim-polyglot'
-" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Python
 Plug 'Vimjas/vim-python-pep8-indent'
 " JavaScript
