@@ -1,12 +1,8 @@
 add_pip_as_python_dependency: True
 create_default_packages:
   - pip
-  - pynvim
   - mypy
   - ipython
-  - ipdb
   - pylint
   - flake8
   - black
-  - ropevim
-  - pygount

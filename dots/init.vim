@@ -50,7 +50,7 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'lifepillar/vim-solarized8'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-" treesetter support
+" treesetter support themes
 Plug 'tomasiser/vim-code-dark'
 Plug 'marko-cerovac/material.nvim'
 Plug 'bluz71/vim-nightfly-guicolors'
@@ -68,6 +68,8 @@ Plug 'rafamadriz/neon'
 Plug 'jceb/vim-orgmode'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'wakatime/vim-wakatime'
+Plug 'xolox/vim-misc'
+Plug 'xolox/vim-colorscheme-switcher'
 " Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/nerdcommenter'
 Plug 'easymotion/vim-easymotion'
@@ -79,6 +81,7 @@ Plug 'sheerun/vim-polyglot'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Python
 Plug 'Vimjas/vim-python-pep8-indent'
+" Plug 'psf/black', { 'branch': 'stable' }
 " JavaScript
 Plug 'othree/yajs.vim', { 'for': 'javascript' }
 Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' }
