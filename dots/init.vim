@@ -16,6 +16,8 @@ set undofile undodir=~/.config/nvim/undodir
 let g:mapleader=','
 " One less hit to get to the command-line.
 nnoremap ; :
+" turn off search highlight
+nnoremap ,<space> :nohlsearch<CR>
 
 " no more arrows motions.
 " nnoremap <silent> <up>    <nop>
