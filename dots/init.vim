@@ -20,10 +20,10 @@ nnoremap ; :
 nnoremap ,<space> :nohlsearch<CR>
 
 " no more arrows motions.
-" nnoremap <silent> <up>    <nop>
-" nnoremap <silent> <down>  <nop>
-" nnoremap <silent> <left>  <nop>
-" nnoremap <silent> <right> <nop>
+nnoremap <silent> <up>    <nop>
+nnoremap <silent> <down>  <nop>
+nnoremap <silent> <left>  <nop>
+nnoremap <silent> <right> <nop>
 
 " activate true color support
 if exists('+termguicolors')
@@ -67,6 +67,7 @@ Plug 'sainnhe/sonokai'
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'rafamadriz/neon'
 " Utils
+" Plug 'xolox/vim-easytags'
 Plug 'jceb/vim-orgmode'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'wakatime/vim-wakatime'
@@ -74,7 +75,7 @@ Plug 'xolox/vim-misc'
 Plug 'xolox/vim-colorscheme-switcher'
 " Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
 Plug 'scrooloose/nerdcommenter'
-Plug 'easymotion/vim-easymotion'
+Plug 'asymotion/vim-easymotion'
 " FZF Search
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
@@ -83,7 +84,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Python
 Plug 'Vimjas/vim-python-pep8-indent'
-" Plug 'psf/black', { 'branch': 'stable' }
 " JavaScript
 Plug 'othree/yajs.vim', { 'for': 'javascript' }
 Plug 'gavocanov/vim-js-indent', { 'for': 'javascript' }
@@ -119,6 +119,7 @@ let g:NERDRemoveExtraSpaces = 1
 
 " Powerline & Airline
 let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#neomake#enabled = 0
 let g:airline_detected_modified = 1
 let g:airline_powerline_fonts = 1
 let g:Powerline_symbols = 'fancy'
