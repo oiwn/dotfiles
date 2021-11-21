@@ -113,7 +113,7 @@ source $ZSH/oh-my-zsh.sh
 
 # recent install on air somehow run default emacs
 # /usr/local/opt/emacs-plus
-alias emacs="/usr/local/opt/emacs-plus@28/bin/emacs -nw"
+alias emacs="/opt/homebrew/opt/emacs-plus@27/bin/emacs -nw"
 alias vim="nvim"
 # alias ctags='/usr/local/bin/ctags'
 
