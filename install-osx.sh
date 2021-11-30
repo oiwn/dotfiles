@@ -20,6 +20,8 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 brew install fzf exa htop nmap mosh tmux ripgrep fd midnight-commander
 # required for python library shapely
 brew install geos
+# ctags
+brew install universal-ctags
 
 # install mongodb
 brew tap mongodb/brew
