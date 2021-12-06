@@ -127,15 +127,16 @@ alias sshconf="nvim ~/.ssh/config"
 # https://midnight-commander.org/ticket/4198
 alias mc='mc -u'
 
+# use brew version of git on osx
+if [[ "$OSTYPE" =~ ^darwin ]]; then
+  alias git='$(brew --prefix git)/bin/git'
+fi
+
 # brew doctor sugestion
 export PATH="/usr/local/sbin:$PATH"
 
 # to install mysqlclient (that's fking stupid)
 export PATH="/usr/local/opt/mysql-client/bin:$PATH"
-
-# golang
-# export GOPATH="$HOME/projects/go"
-# export PATH=$PATH:/usr/local/opt/go/libexec/bin
 
 # NVM
 # export NVM_DIR="$HOME/.nvm"

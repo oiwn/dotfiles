@@ -17,7 +17,7 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # install necessary utils
-brew install fzf exa htop nmap mosh tmux ripgrep fd midnight-commander
+brew install fzf exa htop nmap mosh tmux ripgrep fd midnight-commander git
 # required for python library shapely
 brew install geos
 # ctags
