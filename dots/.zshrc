@@ -134,6 +134,8 @@ fi
 
 # brew doctor sugestion
 export PATH="/usr/local/sbin:$PATH"
+# add local bin
+export PATH="~/.local/bin:$PATH"
 
 # to install mysqlclient (that's fking stupid)
 export PATH="/usr/local/opt/mysql-client/bin:$PATH"
