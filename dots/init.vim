@@ -19,7 +19,7 @@ nnoremap ; :
 " turn off search highlight
 nnoremap ,<space> :nohlsearch<CR>
 
-" no more arrows motions.
+" no more arrows motions
 nnoremap <silent> <up>    <nop>
 nnoremap <silent> <down>  <nop>
 nnoremap <silent> <left>  <nop>
@@ -101,10 +101,6 @@ Plug 'scrooloose/nerdcommenter'
 " FZF Search
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-" Languages
-" Plug 'sheerun/vim-polyglot'
-" Python
-Plug 'Vimjas/vim-python-pep8-indent'
 " Rust
 Plug 'rust-lang/rust.vim'
 " To enable more of the features of rust-analyzer, such as inlay hints and more!
@@ -220,7 +216,8 @@ require'nvim-treesitter.configs'.setup {
 -- Configure LSP through rust-tools.nvim plugin.
 -- rust-tools will configure and enable certain LSP features for us.
 -- See https://github.com/simrat39/rust-tools.nvim#configuration
-local nvim_lsp = require'lspconfig'
+-- local nvim_lsp = require'lspconfig'
+require'lspconfig'.pyright.setup{}
 
 local rust_tools_opts = {
     tools = { -- rust-tools options
