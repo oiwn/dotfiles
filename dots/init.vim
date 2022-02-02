@@ -56,7 +56,8 @@ Plug 'hrsh7th/nvim-cmp'
 Plug 'hrsh7th/cmp-nvim-lsp'
 
 " Snippet completion source for nvim-cmp
-Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
 
 " Other usefull completion sources
 Plug 'hrsh7th/cmp-path'
@@ -113,7 +114,7 @@ call g:plug#end()
 " [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R'
 " Ignore hidden files for ag search
-let $FZF_DEFAULT_COMMAND = 'ag --hidden --ignore .git -g ""'
+let $FZF_DEFAULT_COMMAND = 'rg --hidden --ignore .git -g ""'
 
 " nerd*
 let g:NERDCreateDefaultMappings = 1
@@ -182,7 +183,7 @@ nnoremap <leader>o :%bd\|e#<cr>
 
 " fzf bindings
 nnoremap <leader>ff :GFiles<cr>
-nnoremap <leader>fs :Ag<cr>
+nnoremap <leader>fs :Rg<cr>
 nnoremap <leader>fb :Buffers<cr>
 nnoremap <leader>fl :Lines<cr>
 nnoremap <leader>fd :BLines<cr>
