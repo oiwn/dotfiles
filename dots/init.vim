@@ -70,6 +70,7 @@ Plug 'w0rp/ale'
 Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'nvim-lualine/lualine.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
+
 " treesetter support themes
 Plug 'Mofiqul/dracula.nvim'
 Plug 'rktjmp/lush.nvim'
