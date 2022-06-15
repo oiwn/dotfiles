@@ -142,11 +142,11 @@ let g:ale_lint_on_text_changed = 'never'
 let g:ale_linters = {
 \ 'python': ['mypy', 'pylint'],
 \}
-" 'rust': ['rustfmt']
 let g:ale_fixers = {
 \ 'python': ['black'],
 \ 'rust': ['rustfmt']
 \}
+let g:ale_rust_rustfmt_options = '--edition 2021'
 let g:ale_fix_on_save = 1
 
 " FZF search

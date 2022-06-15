@@ -136,6 +136,8 @@ fi
 export PATH="/usr/local/sbin:$PATH"
 # add local bin
 export PATH="~/.local/bin:$PATH"
+# doom emacs suggestion
+export PATH="~/.emacs.d/bin:$PATH"
 
 # to install mysqlclient (that's fking stupid)
 export PATH="/usr/local/opt/mysql-client/bin:$PATH"
