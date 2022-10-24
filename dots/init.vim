@@ -1,4 +1,5 @@
 " oiwn's NeoVim config
+" updated to lua!
 
 set encoding=utf-8
 scriptencoding utf-8
@@ -107,6 +108,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'rust-lang/rust.vim'
 " To enable more of the features of rust-analyzer, such as inlay hints and more!
 Plug 'simrat39/rust-tools.nvim'
+" Python
 " Markdown
 Plug 'plasticboy/vim-markdown'
 
