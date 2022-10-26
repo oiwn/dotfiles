@@ -16,6 +16,8 @@ vim.g.mapleader = ","
 -- keybingins
 vim.keymap.set("n", ";", ":") -- one less hit to get to command line
 vim.keymap.set("n", ",<space>", ":nohlsearch<CR>") -- remove search highlights
+vim.keymap.set("n", "<leader>vs", ":vsplit<CR>") -- vertical split of current window
+vim.keymap.set("n", "<leader>d", ":b#<bar>bd#<cr>") -- delete buffer, keep vertical split
 
 local ensure_packer = function()
 	local fn = vim.fn

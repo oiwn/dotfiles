@@ -81,7 +81,6 @@ plugins=(
   git
   fzf
   mosh
-  # zsh-z
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -118,6 +117,7 @@ alias vim="nvim"
 # alias ctags='/usr/local/bin/ctags'
 
 # configs
+alias nvimconf="nvim ~/.config/nvim/init.lua"
 alias vimconf="nvim ~/.config/nvim/init.vim"
 alias zshconf="nvim ~/.zshrc"
 alias tmuxconf="nvim ~/.tmux.conf"
