@@ -13,6 +13,11 @@ vim.opt.undodir = vim.fn.expand("~/.config/nvim/undodir")
 vim.o.termguicolors = true
 vim.g.mapleader = ","
 
+-- set to false if using lsp_lines
+vim.diagnostic.config({
+	virtual_text = false,
+})
+
 -- keybingins
 vim.keymap.set("n", ";", ":") -- one less hit to get to command line
 vim.keymap.set("n", ",<space>", ":nohlsearch<CR>") -- remove search highlights
@@ -50,6 +55,21 @@ return require("packer").startup(function(use)
 
 	-- lints and checks
 	use("jose-elias-alvarez/null-ls.nvim")
+	use({
+		"folke/trouble.nvim",
+		requires = "kyazdani42/nvim-web-devicons",
+		config = function()
+			require("trouble").setup({
+				-- configuration
+			})
+		end,
+	})
+	use({
+		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
+		config = function()
+			require("lsp_lines").setup()
+		end,
+	})
 
 	-- treesetter
 	use({
@@ -99,7 +119,7 @@ return require("packer").startup(function(use)
 	})
 	-- treesetter
 	require("nvim-treesitter.configs").setup({
-		ensure_installed = { "python", "lua", "rust", "yaml", "json", "html" },
+		ensure_installed = { "python", "lua", "rust", "yaml", "json", "html", "make" },
 		sync_install = false,
 		auto_install = true,
 		ignore_install = {},
@@ -165,4 +185,6 @@ return require("packer").startup(function(use)
 			require("null-ls").builtins.diagnostics.pylint,
 		},
 	})
+	-- trouble
+	vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
 end)
