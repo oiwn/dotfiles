@@ -42,12 +42,13 @@ return require("packer").startup(function(use)
 	use("wbthomason/packer.nvim")
 	use("gpanders/editorconfig.nvim")
 	use("wakatime/vim-wakatime")
+	use("nvim-tree/nvim-web-devicons")
 
 	-- look and feel
 	use("navarasu/onedark.nvim")
 	use({
 		"nvim-lualine/lualine.nvim",
-		requires = { "kyazdani42/nvim-web-devicons", opt = true },
+		requires = { "kyazdani42/nvim-web-devicons" },
 	})
 
 	-- editing
@@ -112,11 +113,13 @@ return require("packer").startup(function(use)
 	require("lualine").setup({
 		options = { theme = "onedark" },
 	})
+
 	require("indent_blankline").setup({
-		-- for example, context is off by default, use this to turn it on
 		show_current_context = true,
 		show_current_context_start = true,
+		filetype = { "lua", "python", "rust" },
 	})
+
 	-- treesetter
 	require("nvim-treesitter.configs").setup({
 		ensure_installed = { "python", "lua", "rust", "yaml", "json", "html", "make" },
@@ -133,8 +136,8 @@ return require("packer").startup(function(use)
 	-- lspconfig
 	require("lspconfig")["pyright"].setup({})
 	require("lspconfig")["rust_analyzer"].setup({
-		on_attach = on_attach,
-		flags = lsp_flags,
+		-- on_attach = on_attach,
+		-- flags = lsp_flags,
 		settings = {
 			["rust-analyzer"] = {
 				checkOnSave = {
@@ -158,6 +161,8 @@ return require("packer").startup(function(use)
 	vim.keymap.set("n", "fg", builtin.live_grep, {})
 	vim.keymap.set("n", "fb", builtin.buffers, {})
 	vim.keymap.set("n", "fh", builtin.help_tags, {})
+	vim.keymap.set("n", "ft", builtin.tags, {})
+	vim.keymap.set("n", "fc", builtin.current_buffer_tags, {})
 
 	-- lints
 	local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
@@ -176,15 +181,19 @@ return require("packer").startup(function(use)
 		end,
 
 		sources = {
-			-- formatters
+			-- formatters [lua, python, rust]
 			require("null-ls").builtins.formatting.stylua,
 			require("null-ls").builtins.formatting.black,
 			require("null-ls").builtins.formatting.rustfmt,
-			-- diagnostics
+			-- diagnostics [python]
 			require("null-ls").builtins.diagnostics.mypy,
 			require("null-ls").builtins.diagnostics.pylint,
 		},
 	})
 	-- trouble
+	require("trouble").setup({
+		icons = "true",
+		mode = "document_diagnostics",
+	})
 	vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
 end)
