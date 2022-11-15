@@ -134,7 +134,7 @@ return require("packer").startup(function(use)
 	})
 
 	-- lspconfig
-	require("lspconfig")["pyright"].setup({})
+	-- require("lspconfig")["pyright"].setup({})
 	require("lspconfig")["rust_analyzer"].setup({
 		-- on_attach = on_attach,
 		-- flags = lsp_flags,
@@ -157,12 +157,12 @@ return require("packer").startup(function(use)
 	})
 
 	local builtin = require("telescope.builtin")
-	vim.keymap.set("n", "ff", builtin.find_files, {})
-	vim.keymap.set("n", "fg", builtin.live_grep, {})
-	vim.keymap.set("n", "fb", builtin.buffers, {})
-	vim.keymap.set("n", "fh", builtin.help_tags, {})
-	vim.keymap.set("n", "ft", builtin.tags, {})
-	vim.keymap.set("n", "fc", builtin.current_buffer_tags, {})
+	vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+	vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+	vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
+	vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
+	vim.keymap.set("n", "<leader>ft", builtin.tags, {})
+	vim.keymap.set("n", "<leader>fc", builtin.current_buffer_tags, {})
 
 	-- lints
 	local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
