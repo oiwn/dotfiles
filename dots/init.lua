@@ -15,7 +15,7 @@ vim.g.mapleader = ","
 
 -- set to false if using lsp_lines
 vim.diagnostic.config({
-	virtual_text = false,
+	virtual_text = true,
 })
 
 -- keybingins
@@ -63,12 +63,6 @@ return require("packer").startup(function(use)
 			require("trouble").setup({
 				-- configuration
 			})
-		end,
-	})
-	use({
-		"https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-		config = function()
-			require("lsp_lines").setup()
 		end,
 	})
 
@@ -196,4 +190,5 @@ return require("packer").startup(function(use)
 		mode = "document_diagnostics",
 	})
 	vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
+	vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { silent = true, noremap = true })
 end)

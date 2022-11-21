@@ -43,7 +43,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to disable bi-weekly auto-update checks.
-DISABLE_AUTO_UPDATE="true"
+DISABLE_AUTO_UPDATE="false"
 
 # Uncomment the following line to change how often to auto-update (in days).
 # export UPDATE_ZSH_DAYS=13
@@ -111,10 +111,8 @@ source $ZSH/oh-my-zsh.sh
 # export PROMPT='%{$fg_bold[red]%}➜ %{$fg_bold[green]%}%p %{$fg[cyan]%}%~ %{$fg_bold[blue]%}$(git_prompt_info)%{$fg_bold[blue]%} % %{$reset_color%}'
 
 # recent install on air somehow run default emacs
-# /usr/local/opt/emacs-plus
-alias emacs="/opt/homebrew/opt/emacs-plus@27/bin/emacs -nw"
+alias emacs="/opt/homebrew/opt/emacs-plus@28/bin/emacs -nw"
 alias vim="nvim"
-# alias ctags='/usr/local/bin/ctags'
 
 # configs
 alias nvimconf="nvim ~/.config/nvim/init.lua"
@@ -122,6 +120,8 @@ alias vimconf="nvim ~/.config/nvim/init.vim"
 alias zshconf="nvim ~/.zshrc"
 alias tmuxconf="nvim ~/.tmux.conf"
 alias sshconf="nvim ~/.ssh/config"
+# test true color
+alias truecolor="curl -s https://gist.githubusercontent.com/lifepillar/09a44b8cf0f9397465614e622979107f/raw/24-bit-color.sh | bash"
 
 # temp workaround for mc bug
 # https://midnight-commander.org/ticket/4198
@@ -132,20 +132,16 @@ if [[ "$OSTYPE" =~ ^darwin ]]; then
   alias git='$(brew --prefix git)/bin/git'
 fi
 
-# brew doctor sugestion
+# NOTE: beware! '~' noi working here, use `$HOME` instead
+# brew doctor suggestion
 export PATH="/usr/local/sbin:$PATH"
-# add local bin
-export PATH="~/.local/bin:$PATH"
+# add local bin only rust analyzer here, while i have it thought brew
+# export PATH="$HOME/.local/bin:$PATH"
 # doom emacs suggestion
-export PATH="~/.emacs.d/bin:$PATH"
+export PATH="$HOME/.emacs.d/bin:$PATH"
 
-# to install mysqlclient (that's fking stupid)
+# to install mysqlclient (that's really stupid)
 export PATH="/usr/local/opt/mysql-client/bin:$PATH"
-
-# NVM
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # fzf search
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -167,7 +163,9 @@ unset __conda_setup
 
 # fix tmux conda/pyenv bullshit
 # maybe there is better solution?
-[[ -z $TMUX ]] || conda deactivate; conda activate
+# TODO: check if still actual
+# NOTE: looks like can be ignored now
+# [[ -z $TMUX ]] || conda deactivate; conda activate
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
