@@ -14,8 +14,9 @@ vim.o.termguicolors = true
 vim.g.mapleader = ","
 
 -- set to false if using lsp_lines
+-- or just do not want to see bloating long lines of text
 vim.diagnostic.config({
-	virtual_text = true,
+	virtual_text = false,
 })
 
 -- keybingins
@@ -90,6 +91,13 @@ return require("packer").startup(function(use)
 		end,
 	})
 
+	-- completion
+	use("hrsh7th/cmp-nvim-lsp")
+	use("hrsh7th/cmp-buffer")
+	use("hrsh7th/cmp-path")
+	use("hrsh7th/cmp-cmdline")
+	use("hrsh7th/nvim-cmp")
+
 	-- Automatically set up your configuration after cloning packer.nvim
 	if packer_bootstrap then
 		require("packer").sync()
@@ -128,7 +136,18 @@ return require("packer").startup(function(use)
 	})
 
 	-- lspconfig
-	-- require("lspconfig")["pyright"].setup({})
+	require("lspconfig")["pylsp"].setup({
+		settings = {
+			pylsp = {
+				plugins = {
+					pycodestyle = {
+						enabled = false,
+						ignore = { "E501" },
+					},
+				},
+			},
+		},
+	})
 	require("lspconfig")["rust_analyzer"].setup({
 		-- on_attach = on_attach,
 		-- flags = lsp_flags,
@@ -178,10 +197,13 @@ return require("packer").startup(function(use)
 			-- formatters [lua, python, rust]
 			require("null-ls").builtins.formatting.stylua,
 			require("null-ls").builtins.formatting.black,
+			require("null-ls").builtins.formatting.isort,
 			require("null-ls").builtins.formatting.rustfmt,
 			-- diagnostics [python]
 			require("null-ls").builtins.diagnostics.mypy,
 			require("null-ls").builtins.diagnostics.pylint,
+			-- completions
+			require("null-ls").builtins.completion.tags,
 		},
 	})
 	-- trouble

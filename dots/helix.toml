@@ -1,0 +1,8 @@
+theme = "onedark"
+
+[editor]
+line-number = "relative"
+mouse = true
+
+[editor.indent-guides]
+render = true

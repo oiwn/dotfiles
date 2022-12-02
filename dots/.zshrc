@@ -120,6 +120,8 @@ alias vimconf="nvim ~/.config/nvim/init.vim"
 alias zshconf="nvim ~/.zshrc"
 alias tmuxconf="nvim ~/.tmux.conf"
 alias sshconf="nvim ~/.ssh/config"
+# reload configuration
+alias reload="source ~/.zshrc"
 # test true color
 alias truecolor="curl -s https://gist.githubusercontent.com/lifepillar/09a44b8cf0f9397465614e622979107f/raw/24-bit-color.sh | bash"
 
@@ -132,7 +134,7 @@ if [[ "$OSTYPE" =~ ^darwin ]]; then
   alias git='$(brew --prefix git)/bin/git'
 fi
 
-# NOTE: beware! '~' noi working here, use `$HOME` instead
+# NOTE: beware! '~' not working here, use `$HOME` instead
 # brew doctor suggestion
 export PATH="/usr/local/sbin:$PATH"
 # add local bin only rust analyzer here, while i have it thought brew
