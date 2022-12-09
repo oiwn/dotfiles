@@ -1,8 +1,11 @@
 -- oiwn's NeoVim config
 -- updated to lua
+-- resources to read:
+-- https://rsdlt.github.io/posts/rust-nvim-ide-guide-walkthrough-development-debug/
 
 -- nvim settings
-vim.opt.clipboard = "unnamed"
+-- vim.opt.clipboard = "unnamed"
+vim.opt.clipboard = "unnamedplus"
 vim.opt.number = true
 vim.opt.rnu = true
 vim.opt.splitbelow = true
@@ -13,10 +16,14 @@ vim.opt.undodir = vim.fn.expand("~/.config/nvim/undodir")
 vim.o.termguicolors = true
 vim.g.mapleader = ","
 
+vim.opt.completeopt = { "menuone", "noselect", "noinsert" }
+vim.opt.shortmess = vim.opt.shortmess + { c = true }
+vim.api.nvim_set_option("updatetime", 300)
+
 -- set to false if using lsp_lines
 -- or just do not want to see bloating long lines of text
 vim.diagnostic.config({
-	virtual_text = false,
+	virtual_text = true,
 })
 
 -- keybingins
@@ -91,12 +98,18 @@ return require("packer").startup(function(use)
 		end,
 	})
 
+	-- languages
+	use("simrat39/rust-tools.nvim")
+
 	-- completion
 	use("hrsh7th/cmp-nvim-lsp")
 	use("hrsh7th/cmp-buffer")
 	use("hrsh7th/cmp-path")
 	use("hrsh7th/cmp-cmdline")
 	use("hrsh7th/nvim-cmp")
+
+	use("hrsh7th/vim-vsnip")
+	use("hrsh7th/vim-vsnip-integ")
 
 	-- Automatically set up your configuration after cloning packer.nvim
 	if packer_bootstrap then
@@ -213,4 +226,69 @@ return require("packer").startup(function(use)
 	})
 	vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
 	vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", { silent = true, noremap = true })
+
+	-- rust-tools
+	local rt = require("rust-tools")
+	rt.setup({
+		server = {
+			on_attach = function(_, bufnr)
+				-- Hover actions
+				vim.keymap.set("n", "<C-o>", rt.hover_actions.hover_actions, { buffer = bufnr })
+				-- Code action groups
+				vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+			end,
+		},
+	})
+
+	local cmp = require("cmp")
+	cmp.setup({
+		-- Enable LSP snippets
+		snippet = {
+			expand = function(args)
+				vim.fn["vsnip#anonymous"](args.body)
+			end,
+		},
+		mapping = {
+			["<C-p>"] = cmp.mapping.select_prev_item(),
+			["<C-n>"] = cmp.mapping.select_next_item(),
+			-- Add tab support
+			["<S-Tab>"] = cmp.mapping.select_prev_item(),
+			["<Tab>"] = cmp.mapping.select_next_item(),
+			["<C-S-f>"] = cmp.mapping.scroll_docs(-4),
+			["<C-f>"] = cmp.mapping.scroll_docs(4),
+			["<C-Space>"] = cmp.mapping.complete(),
+			["<C-e>"] = cmp.mapping.close(),
+			["<CR>"] = cmp.mapping.confirm({
+				behavior = cmp.ConfirmBehavior.Insert,
+				select = true,
+			}),
+		},
+		-- Installed sources:
+		sources = {
+			{ name = "path" }, -- file paths
+			{ name = "nvim_lsp", keyword_length = 3 }, -- from language server
+			{ name = "nvim_lsp_signature_help" }, -- display function signatures with current parameter emphasized
+			{ name = "nvim_lua", keyword_length = 2 }, -- complete neovim's Lua runtime API such vim.lsp.*
+			{ name = "buffer", keyword_length = 2 }, -- source current buffer
+			{ name = "vsnip", keyword_length = 2 }, -- nvim-cmp source for vim-vsnip
+			{ name = "calc" }, -- source for math calculation
+		},
+		window = {
+			completion = cmp.config.window.bordered(),
+			documentation = cmp.config.window.bordered(),
+		},
+		formatting = {
+			fields = { "menu", "abbr", "kind" },
+			format = function(entry, item)
+				local menu_icon = {
+					nvim_lsp = "λ",
+					vsnip = "⋗",
+					buffer = "Ω",
+					path = "🖫",
+				}
+				item.menu = menu_icon[entry.source.name]
+				return item
+			end,
+		},
+	})
 end)

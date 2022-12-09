@@ -12,7 +12,7 @@ install:
 	ln -sf $(current_dir)/dots/.condarc ~/.condarc && \
 	ln -sf $(current_dir)/dots/.zshrc ~/.zshrc && \
 	ln -sf $(current_dir)/dots/.p10k.zsh ~/.p10k.zsh && \
-	ln -sf $(current_dir)/dots/alacritty.yml ~/.config/alacritty/alacritty.yml && \
+	# ln -sf $(current_dir)/dots/alacritty.yml ~/.config/alacritty/alacritty.yml && \
 	ln -sf $(current_dir)/dots/helix.toml ~/.config/helix/config.toml
 
 
