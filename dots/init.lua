@@ -54,6 +54,7 @@ return require("packer").startup(function(use)
 
 	-- look and feel
 	use("navarasu/onedark.nvim")
+	use("Mofiqul/dracula.nvim")
 	use({
 		"nvim-lualine/lualine.nvim",
 		requires = { "kyazdani42/nvim-web-devicons" },
@@ -119,10 +120,10 @@ return require("packer").startup(function(use)
 	-- Setup plugins
 	--
 	-- https://github.com/navarasu/onedark.nvim
-	require("onedark").setup({
-		style = "dark",
-	})
-	require("onedark").load()
+	-- require("onedark").setup({
+	-- 	style = "dark",
+	-- })
+	require("dracula").load()
 
 	-- lualine
 	require("lualine").setup({
@@ -169,6 +170,7 @@ return require("packer").startup(function(use)
 				checkOnSave = {
 					command = "clippy",
 				},
+				diagnostics = { disabled = { "inactive-code" } },
 			},
 		},
 	})
@@ -210,7 +212,9 @@ return require("packer").startup(function(use)
 			-- formatters [lua, python, rust]
 			require("null-ls").builtins.formatting.stylua,
 			require("null-ls").builtins.formatting.black,
-			require("null-ls").builtins.formatting.isort,
+			require("null-ls").builtins.formatting.ruff,
+			-- require("null-ls").builtins.formatting.isort,
+			require("null-ls").builtins.diagnostics.ruff,
 			require("null-ls").builtins.formatting.rustfmt,
 			-- diagnostics [python]
 			require("null-ls").builtins.diagnostics.mypy,
@@ -231,6 +235,13 @@ return require("packer").startup(function(use)
 	local rt = require("rust-tools")
 	rt.setup({
 		server = {
+			settings = {
+				-- hotfix for bug in recent rust-analyzer
+				-- https://github.com/simrat39/rust-tools.nvim/issues/300
+				["rust-analyzer"] = {
+					inlayHints = { locationLinks = false },
+				},
+			},
 			on_attach = function(_, bufnr)
 				-- Hover actions
 				vim.keymap.set("n", "<C-o>", rt.hover_actions.hover_actions, { buffer = bufnr })

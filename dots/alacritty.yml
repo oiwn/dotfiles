@@ -20,10 +20,10 @@ font:
 env:
   TERM: xterm-256color
 
-shell:
-  program: /bin/zsh
-  args:
-    - --login
-    - -c
-    - zellij
-
+# shell:
+#   program: /bin/zsh
+#   args:
+#     - --login
+#     - -c
+#     - zellij
+#
