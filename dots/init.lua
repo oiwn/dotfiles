@@ -123,6 +123,7 @@ return require("packer").startup(function(use)
 	-- require("onedark").setup({
 	-- 	style = "dark",
 	-- })
+	require("onedark").setup()
 	require("dracula").load()
 
 	-- lualine
