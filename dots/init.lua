@@ -127,7 +127,7 @@ return require("packer").startup(function(use)
 
 	-- lualine
 	require("lualine").setup({
-		options = { theme = "onedark" },
+		options = { theme = "dracula" },
 	})
 
 	require("indent_blankline").setup({
