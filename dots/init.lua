@@ -57,6 +57,8 @@ return require("packer").startup(function(use)
 	use("Mofiqul/dracula.nvim")
 	use("folke/tokyonight.nvim")
 	use("EdenEast/nightfox.nvim")
+	use("rebelot/kanagawa.nvim")
+
 	use({
 		"nvim-lualine/lualine.nvim",
 		requires = { "kyazdani42/nvim-web-devicons" },
@@ -132,6 +134,7 @@ return require("packer").startup(function(use)
 	-- lualine
 	require("lualine").setup({
 		options = { theme = "tokyonight" },
+		-- options = { theme = "dracula" },
 	})
 
 	require("indent_blankline").setup({
