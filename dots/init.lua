@@ -55,6 +55,8 @@ return require("packer").startup(function(use)
 	-- look and feel
 	use("navarasu/onedark.nvim")
 	use("Mofiqul/dracula.nvim")
+	use("folke/tokyonight.nvim")
+	use("EdenEast/nightfox.nvim")
 	use({
 		"nvim-lualine/lualine.nvim",
 		requires = { "kyazdani42/nvim-web-devicons" },
@@ -123,12 +125,13 @@ return require("packer").startup(function(use)
 	-- require("onedark").setup({
 	-- 	style = "dark",
 	-- })
-	require("onedark").setup()
-	require("dracula").load()
+	-- require("onedark").setup()
+	-- require("dracula").load()
+	vim.cmd([[colorscheme tokyonight]])
 
 	-- lualine
 	require("lualine").setup({
-		options = { theme = "onedark" },
+		options = { theme = "tokyonight" },
 	})
 
 	require("indent_blankline").setup({
