@@ -32,6 +32,23 @@ vim.keymap.set("n", ",<space>", ":nohlsearch<CR>") -- remove search highlights
 vim.keymap.set("n", "<leader>vs", ":vsplit<CR>") -- vertical split of current window
 vim.keymap.set("n", "<leader>d", ":b#<bar>bd#<cr>") -- delete buffer, keep vertical split
 
+-- Define a way to cycle trough selected colorschemes
+local colorschemes =
+	{ "onedark", "dracula", "tokyonight-moon", "tokyonight-night", "kanagawa-wave", "terafox", "nightfox" }
+
+-- Set the initial colorscheme
+vim.cmd("colorscheme " .. colorschemes[1])
+
+-- Define a function to cycle through the colorschemes
+local current_scheme = 1
+function cycle_colorschemes()
+	current_scheme = current_scheme + 1
+	if current_scheme > #colorschemes then
+		current_scheme = 1
+	end
+	vim.cmd("colorscheme " .. colorschemes[current_scheme])
+end
+
 local ensure_packer = function()
 	local fn = vim.fn
 	local install_path = fn.stdpath("data") .. "/site/pack/packer/start/packer.nvim"
@@ -129,6 +146,9 @@ return require("packer").startup(function(use)
 	-- })
 	-- require("onedark").setup()
 	-- require("dracula").load()
+
+	-- Bind a key to cycle through the colorschemes
+	vim.api.nvim_set_keymap("n", "<leader>c", ":lua cycle_colorschemes()<CR>", { noremap = true, silent = true })
 	vim.cmd([[colorscheme tokyonight]])
 
 	-- lualine
