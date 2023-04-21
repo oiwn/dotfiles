@@ -113,6 +113,7 @@ source $ZSH/oh-my-zsh.sh
 # recent install on air somehow run default emacs
 alias emacs="/opt/homebrew/opt/emacs-plus@28/bin/emacs -nw"
 alias vim="nvim"
+alias helix="hx"
 
 # configs
 alias nvimconf="nvim ~/.config/nvim/init.lua"
