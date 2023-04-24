@@ -149,7 +149,7 @@ return require("packer").startup(function(use)
 
 	-- Bind a key to cycle through the colorschemes
 	vim.api.nvim_set_keymap("n", "<leader>c", ":lua cycle_colorschemes()<CR>", { noremap = true, silent = true })
-	vim.cmd([[colorscheme tokyonight]])
+	vim.cmd([[colorscheme kanagawa-wave]])
 
 	-- lualine
 	require("lualine").setup({
