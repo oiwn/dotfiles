@@ -13,6 +13,7 @@ vim.opt.splitright = true
 vim.opt.smartindent = true
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.expand("~/.config/nvim/undodir")
+vim.opt.swapfile = false
 vim.o.termguicolors = true
 vim.g.mapleader = ","
 
