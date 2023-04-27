@@ -35,7 +35,7 @@ vim.keymap.set("n", "<leader>d", ":b#<bar>bd#<cr>") -- delete buffer, keep verti
 
 -- Define a way to cycle trough selected colorschemes
 local colorschemes =
-	{ "onedark", "dracula", "tokyonight-moon", "tokyonight-night", "kanagawa-wave", "terafox", "nightfox" }
+	{ "kanagawa", "onedark", "dracula", "tokyonight-moon", "tokyonight-night", "kanagawa-wave", "terafox", "nightfox" }
 
 -- Set the initial colorscheme
 vim.cmd("colorscheme " .. colorschemes[1])
