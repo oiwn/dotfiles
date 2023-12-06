@@ -9,7 +9,7 @@ vim.opt.number = true
 vim.opt.rnu = true
 vim.opt.splitbelow = true
 vim.opt.splitright = true
-vim.opt.smartindent = true
+vim.opt.smartindent = false
 vim.opt.undofile = true
 vim.opt.undodir = vim.fn.expand("~/.config/nvim/undodir")
 vim.opt.swapfile = false
@@ -23,10 +23,10 @@ vim.api.nvim_set_option("updatetime", 300)
 -- set to false if using lsp_lines
 -- or just do not want to see bloating long lines of text
 vim.diagnostic.config({
-  virtual_text = true,
+  virtual_text = false
 })
 
--- keybingins
+-- common vim keybingins
 vim.keymap.set("n", ";", ":")                       -- one less hit to get to command line
 vim.keymap.set("n", ",<space>", ":nohlsearch<CR>")  -- remove search highlights
 vim.keymap.set("n", "<leader>vs", ":vsplit<CR>")    -- vertical split of current window
@@ -61,7 +61,7 @@ local plugins = {
       local configs = require("nvim-treesitter.configs")
 
       configs.setup({
-        ensure_installed = { "lua", "html", "json", "make", "rust", "python" },
+        ensure_installed = { "lua", "html", "json", "make", "rust", "python", "yaml", "toml" },
         sync_install = false,
         highlight = { enable = true },
         indent = { enable = true },
@@ -72,15 +72,28 @@ local plugins = {
   {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.4",
-    dependencies = { "nvim-lua/plenary.nvim" }
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      -- Keymap for telescope.nvim
+      local builtin = require('telescope.builtin')
+      vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
+      vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
+      vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
+      vim.keymap.set("n", "<leader>ft", builtin.tags, {})
+      vim.keymap.set("n", "<leader>fc", builtin.current_buffer_tags, {})
+    end
   },
   -- lualine
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "linrongbin16/lsp-progress.nvim"
+    },
     config = function()
       require("lualine").setup({
-        options = { theme = "dracula" }
+        options = { theme = "auto" }
       })
     end
   },
@@ -88,7 +101,11 @@ local plugins = {
   {
     "neovim/nvim-lspconfig",
     config = function()
-      require("lspconfig").lua_ls.setup {
+      -- Set up lspconfig.
+      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      -- setup lua
+      require("lspconfig").lua_ls.setup({
+        capabilities = capabilities,
         settings = {
           Lua = {
             runtime = {
@@ -115,9 +132,77 @@ local plugins = {
             },
           },
         },
-      }
+      })
+      -- setup rust-analyzer
+      local on_attach = function(client)
+        require("completion").on_attach(client)
+      end
+      require("lspconfig").rust_analyzer.setup({
+        on_attach = on_attach,
+        settings = {
+          ["rust-analyzer"] = {
+            imports = {
+              granularity = {
+                group = "module",
+              },
+              prefix = "self",
+            },
+            cargo = {
+              buildScripts = {
+                enable = true,
+              },
+            },
+            procMacro = {
+              enable = true
+            },
+          }
+        }
+      })
     end
   },
+  -- completions
+  {
+    "hrsh7th/nvim-cmp",
+    config = function()
+      local cmp = require("cmp");
+      cmp.setup({
+        completion = {
+          debounce = 500
+        },
+        snippet = {
+          -- REQUIRED - you must specify a snippet engine
+          expand = function(args)
+            vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+            -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+            -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+            -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+          end,
+        },
+        window = {
+          -- completion = cmp.config.window.bordered(),
+          -- documentation = cmp.config.window.bordered(),
+        },
+        mapping = cmp.mapping.preset.insert({
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-e>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        }),
+        sources = cmp.config.sources({
+          { name = 'nvim_lsp' },
+          -- { name = 'vsnip' }, -- For vsnip users.
+          -- { name = 'luasnip' }, -- For luasnip users.
+          -- { name = 'ultisnips' }, -- For ultisnips users.
+          -- { name = 'snippy' }, -- For snippy users.
+        }, {
+          { name = 'buffer' },
+        })
+      })
+    end
+  },
+  "hrsh7th/cmp-nvim-lsp",
+  "hrsh7th/cmp-buffer",
   -- touble
   {
     "folke/trouble.nvim",
@@ -127,57 +212,50 @@ local plugins = {
       -- or leave it empty to use the default settings
     }
   },
+  -- comments
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      -- add any options here
+    },
+    lazy = false,
+  },
+  -- indents
+  {
+    "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {}
+  },
+  {
+    "linrongbin16/lsp-progress.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("lsp-progress").setup()
+    end
+  },
+  -- wakatime
+  "gpanders/editorconfig.nvim",
+  "wakatime/vim-wakatime",
   -- "simrat39/rust-tools.nvim"
-  "nvimtools/none-ls.nvim"
+  -- "nvimtools/none-ls.nvim"
 }
 
 require("lazy").setup(plugins)
 
--- Keymap for telescope.nvim
-local builtin = require('telescope.builtin')
-vim.keymap.set("n", "<leader>ff", builtin.find_files, {})
-vim.keymap.set("n", "<leader>fg", builtin.live_grep, {})
-vim.keymap.set("n", "<leader>fb", builtin.buffers, {})
-vim.keymap.set("n", "<leader>fh", builtin.help_tags, {})
-vim.keymap.set("n", "<leader>ft", builtin.tags, {})
-vim.keymap.set("n", "<leader>fc", builtin.current_buffer_tags, {})
-
--- Keymap for lspconfig
-
-
---[[ Setup language servers.
-local lspconfig = require('lspconfig')
-lspconfig.rust_analyzer.setup {
-  -- Server-specific settings. See `:help lspconfig-setup`
-  settings = {
-    ['rust-analyzer'] = {
-      checkOnSave = {
-        command = "clippy",
-      }
-    },
-  },
-}
--- lspconfig.ruff_lsp.setup{}
-]]
---
-
---[[
-local null_ls = require("null-ls")
-null_ls.setup({
-    sources = {
-        null_ls.builtins.formatting.stylua,
-        null_ls.builtins.formatting.ruff,
-    },
+-- Trouble
+vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", {
+  silent = true, noremap = true
 })
-]]
---
+vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>", {
+  silent = true, noremap = true
+})
 
 -- Lsp related keybindings
 function FormatDocument()
   vim.lsp.buf.format({ async = false })
 end
 
-vim.api.nvim_set_keymap('n', '<leader>f', '<cmd>lua FormatDocument()<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>f', '<cmd>lua FormatDocument()<CR>', {
+  noremap = true, silent = true
+})
 
 -- Setup autoformats for certain document types
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -198,11 +276,18 @@ local colorschemes = {
   "nightfox"
 }
 
--- Function to check if a colorscheme is available
 local function is_colorscheme_available(scheme_name)
-  local ok, _ = pcall(vim.cmd, "colorscheme " .. scheme_name)
+  local ok, _ = pcall(function()
+    vim.cmd("colorscheme " .. scheme_name)
+  end)
   return ok
 end
+
+-- Function to check if a colorscheme is available
+-- local function is_colorscheme_available(scheme_name)
+--   local ok, _ = pcall(vim.cmd, "colorscheme " .. scheme_name)
+--   return ok
+-- end
 
 -- Set a fallback colorscheme
 local fallback_colorscheme = "default"
@@ -220,18 +305,20 @@ end
 set_colorscheme(colorschemes[1])
 
 -- Define a function to cycle through the colorschemes
-local current_scheme = 1
-function cycle_colorschemes()
-  current_scheme = current_scheme + 1
-  if current_scheme > #colorschemes then
-    current_scheme = 1
+THEME_CYCLER = {
+  current_scheme = 1
+}
+function THEME_CYCLER.cycle_colorschemes()
+  THEME_CYCLER.current_scheme = THEME_CYCLER.current_scheme + 1
+  if THEME_CYCLER.current_scheme > #colorschemes then
+    THEME_CYCLER.current_scheme = 1
   end
-  set_colorscheme(colorschemes[current_scheme])
+  set_colorscheme(colorschemes[THEME_CYCLER.current_scheme])
 end
 
 -- Bind a key to cycle through the colorschemes
 vim.api.nvim_set_keymap(
-  "n", "<leader>c", ":lua cycle_colorschemes()<CR>", { noremap = true, silent = true })
+  "n", "<leader>c", ":lua THEME_CYCLER.cycle_colorschemes()<CR>", { noremap = true, silent = true })
 
 -- Set initial colorscheme to the first one or fallback
 set_colorscheme(colorschemes[1])
