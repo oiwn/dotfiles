@@ -2,6 +2,7 @@
 -- updated to lua
 -- resources to read:
 -- https://rsdlt.github.io/posts/rust-nvim-ide-guide-walkthrough-development-debug/
+-- update again to remove bullshit plugins, remove
 
 -- nvim settings
 vim.opt.clipboard = "unnamedplus"
@@ -214,7 +215,7 @@ local plugins = {
   },
   -- comments
   {
-    'numToStr/Comment.nvim',
+    "numToStr/Comment.nvim",
     opts = {
       -- add any options here
     },
@@ -222,7 +223,9 @@ local plugins = {
   },
   -- indents
   {
-    "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {}
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {}
   },
   {
     "linrongbin16/lsp-progress.nvim",
