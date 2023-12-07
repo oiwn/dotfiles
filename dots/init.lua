@@ -38,6 +38,7 @@ local colorschemes =
 	{ "kanagawa", "onedark", "dracula", "tokyonight-moon", "tokyonight-night", "kanagawa-wave", "terafox", "nightfox" }
 
 -- Set the initial colorscheme
+-- TODO: on initial setup this one failed, need to check if Packer already installed
 vim.cmd("colorscheme " .. colorschemes[1])
 
 -- Define a function to cycle through the colorschemes
