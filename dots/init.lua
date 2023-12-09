@@ -286,12 +286,6 @@ local function is_colorscheme_available(scheme_name)
   return ok
 end
 
--- Function to check if a colorscheme is available
--- local function is_colorscheme_available(scheme_name)
---   local ok, _ = pcall(vim.cmd, "colorscheme " .. scheme_name)
---   return ok
--- end
-
 -- Set a fallback colorscheme
 local fallback_colorscheme = "default"
 
