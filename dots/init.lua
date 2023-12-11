@@ -120,6 +120,23 @@ local plugins = {
     -- follow latest release.
     version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
   },
+  -- rust-tools
+  {
+    "simrat39/rust-tools.nvim",
+    config = function()
+      local rt = require("rust-tools")
+      rt.setup({
+        server = {
+          on_attach = function(_, bufnr)
+            -- Hover actions
+            vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+            -- Code action groups
+            vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+          end,
+        },
+      })
+    end
+  },
   -- lspconfig
   {
     "neovim/nvim-lspconfig",
@@ -156,7 +173,8 @@ local plugins = {
           },
         },
       })
-      -- setup rust-analyzer
+
+      --[[ setup rust-analyzer
       local on_attach = function(client)
         require("completion").on_attach(client)
       end
@@ -181,6 +199,8 @@ local plugins = {
           }
         }
       })
+      ]]
+      --
     end
   },
   -- completions
@@ -195,10 +215,7 @@ local plugins = {
         snippet = {
           -- REQUIRED - you must specify a snippet engine
           expand = function(args)
-            -- vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
             require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-            -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-            -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
           end,
         },
         window = {
@@ -210,14 +227,11 @@ local plugins = {
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-Space>'] = cmp.mapping.complete(),
           ['<C-e>'] = cmp.mapping.abort(),
-          ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+          ['<CR>'] = cmp.mapping.confirm({ select = true }),
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },
-          -- { name = 'vsnip' }, -- For vsnip users.
-          { name = 'luasnip' }, -- For luasnip users.
-          -- { name = 'ultisnips' }, -- For ultisnips users.
-          -- { name = 'snippy' }, -- For snippy users.
+          { name = 'luasnip' },
         }, {
           { name = 'buffer' },
         })
@@ -256,8 +270,8 @@ local plugins = {
       require("lsp-progress").setup()
     end
   },
-  -- wakatime
   "gpanders/editorconfig.nvim",
+  -- wakatime
   "wakatime/vim-wakatime",
   -- "simrat39/rust-tools.nvim"
   -- "nvimtools/none-ls.nvim"
@@ -273,7 +287,9 @@ vim.keymap.set("n", "<leader>xd", "<cmd>TroubleToggle document_diagnostics<cr>",
   silent = true, noremap = true
 })
 
--- Lsp related keybindings
+-------------------------------
+-- Autoformat certain documents
+-------------------------------
 function FormatDocument()
   vim.lsp.buf.format({ async = false })
 end
@@ -286,6 +302,45 @@ vim.api.nvim_set_keymap('n', '<leader>f', '<cmd>lua FormatDocument()<CR>', {
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "*.lua", "*.py", "*.rs" },
   callback = function() FormatDocument() end,
+})
+-------------------------------
+
+-- Setting up LSPConfig globals
+-- See `:help vim.diagnostic.*` for documentation on any of the below functions
+vim.keymap.set('n', '<space>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist)
+
+-- Use LspAttach autocommand to only map the following keys
+-- after the language server attaches to the current buffer
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+  callback = function(ev)
+    -- Enable completion triggered by <c-x><c-o>
+    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+    -- Buffer local mappings.
+    -- See `:help vim.lsp.*` for documentation on any of the below functions
+    local opts = { buffer = ev.buf }
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+    vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+    vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, opts)
+    vim.keymap.set('n', '<space>wl', function()
+      print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, opts)
+    vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, opts)
+    vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, opts)
+    vim.keymap.set({ 'n', 'v' }, '<space>ca', vim.lsp.buf.code_action, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    vim.keymap.set('n', '<space>f', function()
+      vim.lsp.buf.format { async = true }
+    end, opts)
+  end,
 })
 
 -- Themes cycling by leader+c
