@@ -1,0 +1,9 @@
+[env]
+TERM = "xterm-256color"
+
+[font]
+size = 9
+
+[font.normal]
+family = "Ubuntu Mono Nerd Font"
+style = "Regular"
