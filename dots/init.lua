@@ -173,34 +173,6 @@ local plugins = {
           },
         },
       })
-
-      --[[ setup rust-analyzer
-      local on_attach = function(client)
-        require("completion").on_attach(client)
-      end
-      require("lspconfig").rust_analyzer.setup({
-        on_attach = on_attach,
-        settings = {
-          ["rust-analyzer"] = {
-            imports = {
-              granularity = {
-                group = "module",
-              },
-              prefix = "self",
-            },
-            cargo = {
-              buildScripts = {
-                enable = true,
-              },
-            },
-            procMacro = {
-              enable = true
-            },
-          }
-        }
-      })
-      ]]
-      --
     end
   },
   -- completions
@@ -210,6 +182,7 @@ local plugins = {
       local cmp = require("cmp");
       cmp.setup({
         completion = {
+          keyword_length = 3,
           debounce = 500
         },
         snippet = {
@@ -233,7 +206,7 @@ local plugins = {
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
         }, {
-          { name = 'buffer' },
+          -- { name = 'buffer' },
         })
       })
     end
