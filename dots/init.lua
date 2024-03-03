@@ -2,7 +2,7 @@
 -- updated to lua
 -- resources to read:
 -- https://rsdlt.github.io/posts/rust-nvim-ide-guide-walkthrough-development-debug/
--- update again to remove bullshit plugins, remove
+-- update again to remove bullshit plugins
 
 -- nvim settings
 vim.opt.clipboard = "unnamedplus"
@@ -120,22 +120,11 @@ local plugins = {
     -- follow latest release.
     version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
   },
-  -- rust-tools
+  -- rust-tools fork!
   {
-    "simrat39/rust-tools.nvim",
-    config = function()
-      local rt = require("rust-tools")
-      rt.setup({
-        server = {
-          on_attach = function(_, bufnr)
-            -- Hover actions
-            vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-            -- Code action groups
-            vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-          end,
-        },
-      })
-    end
+    'mrcjkb/rustaceanvim',
+    version = '^4', -- Recommended
+    ft = { 'rust' },
   },
   -- lspconfig
   {
@@ -316,7 +305,10 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+------------------------------------------------------------------
 -- Themes cycling by leader+c
+------------------------------------------------------------------
+--
 -- Define a list of colorschemes
 local colorschemes = {
   "kanagawa",
