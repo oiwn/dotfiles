@@ -6,3 +6,11 @@ mouse = true
 
 [editor.indent-guides]
 render = true
+
+[language-server.ruff]
+command = "ruff-lsp"
+
+[[language]]
+name = "python"
+language-servers = [ "ruff" ]
+auto-format = true

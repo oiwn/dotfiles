@@ -69,8 +69,8 @@ local plugins = {
       })
     end
   },
-  -- telescope
   {
+    -- to select files/buffers/tags etc.
     "nvim-telescope/telescope.nvim",
     tag = "0.1.4",
     dependencies = { "nvim-lua/plenary.nvim" },
@@ -85,8 +85,8 @@ local plugins = {
       vim.keymap.set("n", "<leader>fc", builtin.current_buffer_tags, {})
     end
   },
-  -- lualine
   {
+    -- better status line for neovim
     "nvim-lualine/lualine.nvim",
     dependencies = {
       "nvim-tree/nvim-web-devicons",
@@ -99,7 +99,7 @@ local plugins = {
           lualine_a = { "mode" },
           lualine_b = { "filename" },
           lualine_c = {
-            -- invoke `progress` here.
+            -- invoke lsp `progress` here.
             require('lsp-progress').progress,
           }
         }
@@ -114,14 +114,15 @@ local plugins = {
       })
     end
   },
-  -- luasnip
   {
+    -- looks like snippets but i do not know WTF is it actually
+    -- NOTE: learn how to use it or delete
     "L3MON4D3/LuaSnip",
     -- follow latest release.
     version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
   },
-  -- rust-tools fork!
   {
+    -- this is rust-tools fork!
     'mrcjkb/rustaceanvim',
     version = '^4', -- Recommended
     ft = { 'rust' },
@@ -132,6 +133,15 @@ local plugins = {
     config = function()
       -- Set up lspconfig.
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      -- setup python
+      require('lspconfig').ruff_lsp.setup {
+        init_options = {
+          settings = {
+            -- Any extra CLI arguments for `ruff` go here.
+            args = {},
+          }
+        }
+      }
       -- setup lua
       require("lspconfig").lua_ls.setup({
         capabilities = capabilities,
@@ -164,8 +174,8 @@ local plugins = {
       })
     end
   },
-  -- completions
   {
+    -- used for completions
     "hrsh7th/nvim-cmp",
     config = function()
       local cmp = require("cmp");
@@ -202,30 +212,25 @@ local plugins = {
   },
   "hrsh7th/cmp-nvim-lsp",
   "hrsh7th/cmp-buffer",
-  -- touble
   {
+    -- awesome plugin to display errors and warnings
     "folke/trouble.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-    }
+    opts = {}
   },
-  -- comments
   {
     "numToStr/Comment.nvim",
-    opts = {
-      -- add any options here
-    },
+    opts = {},
     lazy = false,
   },
-  -- indents
   {
+    -- to visualize indents
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
     opts = {}
   },
   {
+    -- cool plugin to see what's going on with LSP server
     "linrongbin16/lsp-progress.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
@@ -235,8 +240,6 @@ local plugins = {
   "gpanders/editorconfig.nvim",
   -- wakatime
   "wakatime/vim-wakatime",
-  -- "simrat39/rust-tools.nvim"
-  -- "nvimtools/none-ls.nvim"
 }
 
 require("lazy").setup(plugins)
