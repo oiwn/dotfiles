@@ -127,8 +127,13 @@ local plugins = {
     version = '^4', -- Recommended
     ft = { 'rust' },
   },
-  -- lspconfig
   {
+    -- to handle Justfile
+    "NoahTheDuke/vim-just",
+    ft = { "just" },
+  },
+  {
+    -- lsp-config
     "neovim/nvim-lspconfig",
     config = function()
       -- Set up lspconfig.
