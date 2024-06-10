@@ -64,6 +64,7 @@ local plugins = {
       configs.setup({
         ensure_installed = { "lua", "html", "json", "make", "rust", "python", "yaml", "toml" },
         sync_install = false,
+        additional_vim_regex_highlighting = false,
         highlight = { enable = true },
         indent = { enable = true },
       })
