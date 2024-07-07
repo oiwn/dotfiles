@@ -30,5 +30,4 @@ brew install neovim
 
 # install software
 brew install --cask warp
-brew install --cask dash
 brew install --cask cocoarestclient
