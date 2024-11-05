@@ -1,0 +1,17 @@
+# Configure the language server for Python
+[[language]]
+name = "python"
+
+[language-server.ruff-lsp]
+command = "ruff-lsp" 
+args = [] 
+config = {}
+
+[formatter.ruff]
+command = "ruff"
+args = ["--stdin-filename", "%file", "--fix", "-"]
+
+[linter.ruff]
+command = "ruff"
+args = ["--quiet", "--exit-zero", "--stdin-filename", "%file", "-"]
+is-stdin = true
