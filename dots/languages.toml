@@ -15,3 +15,6 @@ args = ["--stdin-filename", "%file", "--fix", "-"]
 command = "ruff"
 args = ["--quiet", "--exit-zero", "--stdin-filename", "%file", "-"]
 is-stdin = true
+
+[language-server.rust-analyzer.config]
+check.command = "clippy"
