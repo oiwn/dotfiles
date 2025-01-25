@@ -1,4 +1,5 @@
-theme = "kanagawa"
+# theme = "kanagawa"
+theme = "adwaita-dark"
 
 [editor]
 line-number = "relative"
