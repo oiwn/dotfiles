@@ -18,3 +18,7 @@ is-stdin = true
 
 [language-server.rust-analyzer.config]
 check.command = "clippy"
+
+[[language]]
+name = "yaml"
+language-servers = ["yaml-language-server"]
