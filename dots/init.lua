@@ -140,7 +140,7 @@ local plugins = {
       -- Set up lspconfig.
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
       -- setup python
-      require('lspconfig').ruff_lsp.setup {
+      require('lspconfig').ruff.setup {
         init_options = {
           settings = {
             -- Any extra CLI arguments for `ruff` go here.
@@ -148,6 +148,15 @@ local plugins = {
           }
         }
       }
+      -- require('lspconfig').ruff_lsp.setup {
+      --   init_options = {
+      --     settings = {
+      --       -- Any extra CLI arguments for `ruff` go here.
+      --       args = {},
+      --     }
+      --   }
+      -- }
+
       -- setup lua
       require("lspconfig").lua_ls.setup({
         capabilities = capabilities,
