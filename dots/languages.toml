@@ -1,23 +1,27 @@
 # Configure the language server for Python
+# Define the Ruff language server (using Ruff's built-in LSP mode)
+[language-server.ruff]
+command = "ruff"               # use "ruff-lsp" if you installed ruff-lsp separately
+args = ["server"]
+
+# Python language configuration using only Ruff
 [[language]]
 name = "python"
+language-servers = ["ruff"]    # only use the Ruff LSP for Python
+auto-format = true             # enable auto-format on save with the formatter below
+formatter = { command = "ruff", args = ["format", "-"] }
 
-[language-server.ruff-lsp]
-command = "ruff-lsp" 
-args = [] 
-config = {}
+# [formatter.ruff]
+# command = "ruff"
+# args = ["--stdin-filename", "%file", "--fix", "-"]
 
-[formatter.ruff]
-command = "ruff"
-args = ["--stdin-filename", "%file", "--fix", "-"]
+# [linter.ruff]
+# command = "ruff-lsp"
+# args = ["--quiet", "--exit-zero", "--stdin-filename", "%file", "-"]
+# is-stdin = true
 
-[linter.ruff]
-command = "ruff"
-args = ["--quiet", "--exit-zero", "--stdin-filename", "%file", "-"]
-is-stdin = true
-
-[language-server.rust-analyzer.config]
-check.command = "clippy"
+# [language-server.rust-analyzer.config]
+# check.command = "clippy"
 
 # [[language]]
 # name = "yaml"
