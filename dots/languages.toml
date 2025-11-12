@@ -26,3 +26,8 @@ formatter = { command = "ruff", args = ["format", "-"] }
 # [[language]]
 # name = "yaml"
 # language-servers = ["yaml-language-server"]
+
+[[language]]
+name = "markdown"
+soft-wrap = { enable = true, wrap-at-text-width = true }
+text-width = 100
