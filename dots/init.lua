@@ -293,7 +293,7 @@ local plugins = {
 require("lazy").setup(plugins)
 
 -- rust-tool/rustaceanvim settings
--- NOTE: rust-ananlyzer should check all features
+-- NOTE: rust-analyzer should check all features
 vim.g.rustaceanvim = {
   -- Plugin configuration
   tools = {

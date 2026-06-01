@@ -1,0 +1,8 @@
+fail_fast = true
+
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "typos", name = "typos", language = "system", entry = "typos", pass_filenames = false },
+  { id = "gitleaks", name = "gitleaks", language = "system", entry = "gitleaks git --verbose", pass_filenames = false },
+]
