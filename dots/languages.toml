@@ -30,4 +30,13 @@ formatter = { command = "ruff", args = ["format", "-"] }
 [[language]]
 name = "markdown"
 soft-wrap = { enable = true, wrap-at-text-width = true }
-text-width = 100
+text-width = 82
+
+[[language]]
+name = "rust"
+
+[language-server.rust-analyzer.config.cargo]
+allFeatures = true
+
+[language-server.rust-analyzer.config.check]
+command = "clippy"

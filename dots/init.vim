@@ -60,7 +60,7 @@ Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
 
-" Other usefull completion sources
+" Other useful completion sources
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-buffer'
 
@@ -179,7 +179,7 @@ com! FormatJSON %!python -m json.tool
 nnoremap <leader>d :b#<bar>bd#<cr>
 " vertical split
 nnoremap <leader>vs :vsplit<cr>
-" quit from terminal runing inside nvim
+" quit from terminal running inside nvim
 tnoremap <Esc> <C-\><C-n>
 " close all buffers
 nnoremap <leader>o :%bd\|e#<cr>
@@ -238,7 +238,7 @@ local rust_tools_opts = {
     -- these override the defaults set by rust-tools.nvim
     -- see https://github.com/neovim/nvim-lspconfig/blob/master/CONFIG.md#rust_analyzer
     server = {
-        -- on_attach is a callback called when the language server attachs to the buffer
+        -- on_attach is a callback called when the language server attaches to the buffer
         -- on_attach = on_attach,
         settings = {
             -- to enable rust-analyzer settings visit:
