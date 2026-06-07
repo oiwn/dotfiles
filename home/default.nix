@@ -10,8 +10,8 @@
   ];
 
   home = {
-    username = vars.userName;
-    homeDirectory = "/Users/${vars.userName}";
+    username = vars.systemUser;
+    homeDirectory = "/Users/${vars.systemUser}";
     stateVersion = "24.11";
   };
 }

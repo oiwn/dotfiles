@@ -29,7 +29,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               extraSpecialArgs = { inherit vars; };
-              users.${vars.userName} = import ./home/default.nix;
+              users.${vars.systemUser} = import ./home/default.nix;
             };
           }
           ./hosts/macbook.nix

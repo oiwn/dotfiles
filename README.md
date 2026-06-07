@@ -32,14 +32,19 @@ cd ~/code/dotfiles
 cp vars.nix.example vars.nix
 $EDITOR vars.nix
 
-# 6. Apply
+# 6. Make vars.nix visible to the flake without staging its content.
+#    Flakes only see git-tracked paths; intent-to-add registers the path
+#    while keeping content out of any commit. -f overrides .gitignore.
+git add -f --intent-to-add vars.nix
+
+# 7. Apply
 nix run nix-darwin/master#darwin-rebuild -- switch --flake .
 
-# 7. Initialize Rust toolchain (rustup itself was installed by step 6)
+# 8. Initialize Rust toolchain (rustup itself was installed by step 7)
 rustup default stable
 rustup component add rust-analyzer clippy rustfmt
 
-# 8. Add Fish to /etc/shells and set as default
+# 9. Add Fish to /etc/shells and set as default
 echo "$(which fish)" | sudo tee -a /etc/shells
 chsh -s $(which fish)
 ```

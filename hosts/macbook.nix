@@ -80,7 +80,7 @@
   # =====================
   # Shell — set fish as default
   # =====================
-  users.users.${vars.userName}.shell = pkgs.fish;
+  users.users.${vars.systemUser}.shell = pkgs.fish;
 
   # =====================
   # System-level packages
