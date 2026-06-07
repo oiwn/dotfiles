@@ -41,12 +41,16 @@
       cleanup = "none";
     };
 
+    taps = [
+      "charmbracelet/tap"   # for crush
+    ];
+
     # Fast-moving agents & tools not in nixpkgs
     brews = [
       "opencode"
       "claude-code"
       "gemini-cli"
-      "crush"
+      "charmbracelet/tap/crush"
       "prek"
     ];
 
