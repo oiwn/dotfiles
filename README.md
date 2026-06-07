@@ -14,21 +14,32 @@ Declarative macOS setup using Nix (Lix) + nix-darwin + home-manager + flakes.
 ## Bootstrap (fresh machine)
 
 ```sh
-# 1. Install Lix
+# 1. Install Homebrew (nix-darwin manages it but does not install it)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 2. Install Lix
 curl -sSf -L https://install.lix.systems/lix | sh -s install
 
-# 2. Close terminal and reopen (Lix adds itself to PATH)
+# 3. Close terminal and reopen (Lix adds itself to PATH)
 
-# 3. Install Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# 4. Clone and apply
+# 4. Clone
 mkdir -p ~/code
 git clone https://github.com/oiwn/dotfiles.git ~/code/dotfiles
 cd ~/code/dotfiles
+
+# 5. Create personal vars file (gitignored — fill in hostName, name, email).
+#    hostName must match `scutil --get LocalHostName`.
+cp vars.nix.example vars.nix
+$EDITOR vars.nix
+
+# 6. Apply
 nix run nix-darwin/master#darwin-rebuild -- switch --flake .
 
-# 5. Add Fish to /etc/shells and set as default
+# 7. Initialize Rust toolchain (rustup itself was installed by step 6)
+rustup default stable
+rustup component add rust-analyzer clippy rustfmt
+
+# 8. Add Fish to /etc/shells and set as default
 echo "$(which fish)" | sudo tee -a /etc/shells
 chsh -s $(which fish)
 ```
@@ -72,7 +83,7 @@ dotfiles/
 
 ## Design decisions
 
-- **Rust toolchain** via `rustup` (flexible targets/nightly). Rust CLI tools via Nix prebuilt binaries.
+- **Rust toolchain**: `rustup` installed via Nix; toolchains/components managed by rustup (flexible targets/nightly). Rust CLI tools (ripgrep, bat, fd, eza, etc.) come from Nix as prebuilt binaries.
 - **Shell**: fish + starship (zsh + oh-my-zsh removed)
 - **Python**: uv instead of conda
 - **Terminal**: WezTerm (Warp removed)

@@ -17,7 +17,7 @@
     let
       vars = import ./vars.nix;
     in {
-      darwinConfigurations.karok = nix-darwin.lib.darwinSystem {
+      darwinConfigurations.${vars.hostName} = nix-darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         specialArgs = { inherit vars; };
         modules = [
@@ -29,7 +29,7 @@
               useGlobalPkgs = true;
               useUserPackages = true;
               extraSpecialArgs = { inherit vars; };
-              users.alexch = import ./home/default.nix;
+              users.${vars.userName} = import ./home/default.nix;
             };
           }
           ./hosts/macbook.nix

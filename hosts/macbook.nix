@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, vars, ... }:
 
 {
   # =====================
@@ -80,7 +80,7 @@
   # =====================
   # Shell — set fish as default
   # =====================
-  users.users.alexch.shell = pkgs.fish;
+  users.users.${vars.userName}.shell = pkgs.fish;
 
   # =====================
   # System-level packages

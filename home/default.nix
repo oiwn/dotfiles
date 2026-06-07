@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, vars, ... }:
 
 {
   imports = [
@@ -10,8 +10,8 @@
   ];
 
   home = {
-    username = "alexch";
-    homeDirectory = "/Users/alexch";
+    username = vars.userName;
+    homeDirectory = "/Users/${vars.userName}";
     stateVersion = "24.11";
   };
 }
