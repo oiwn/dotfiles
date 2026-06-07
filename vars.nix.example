@@ -1,0 +1,4 @@
+{
+  userName  = "your-name";
+  userEmail = "you@example.com";
+}
