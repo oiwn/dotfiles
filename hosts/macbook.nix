@@ -67,7 +67,6 @@
       "reaper"
       "obs"
       "onlyoffice"
-      "transmission"
       "bambu-studio"
       "mattermost"
       "slack"
