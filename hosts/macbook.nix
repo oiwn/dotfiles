@@ -71,7 +71,7 @@
       "slack"
       "docker-desktop"
       "mactex-no-gui"
-      "jupyterlab"
+      "jupyterlab-app"
       "cocoarestclient"
       "claude-code"
       "codex"
