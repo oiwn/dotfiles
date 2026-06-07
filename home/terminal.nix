@@ -2,6 +2,11 @@
 
 {
   # =====================
+  # Fish (needed so home-manager wires Starship into ~/.config/fish/conf.d)
+  # =====================
+  programs.fish.enable = true;
+
+  # =====================
   # Starship prompt
   # =====================
   programs.starship.enable = true;
