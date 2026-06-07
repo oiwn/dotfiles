@@ -1,4 +1,5 @@
 {
+  hostName  = "your-mac-name";   # must match `scutil --get LocalHostName`
   userName  = "your-name";
   userEmail = "you@example.com";
 }

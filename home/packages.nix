@@ -13,7 +13,7 @@
     duf
     tokei
     cargo-binstall
-    rust-analyzer
+    rustup
     typos
     dprint
     just
