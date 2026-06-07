@@ -6,9 +6,9 @@
   # =====================
   programs.git = {
     enable = true;
-    userName = vars.gitName;
-    userEmail = vars.gitEmail;
-    extraConfig = {
+    settings = {
+      user.name = vars.gitName;
+      user.email = vars.gitEmail;
       init.defaultBranch = "main";
       pull.rebase = true;
     };
