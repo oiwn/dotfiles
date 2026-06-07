@@ -48,7 +48,6 @@
     # Fast-moving agents & tools not in nixpkgs
     brews = [
       "opencode"
-      "claude-code"
       "gemini-cli"
       "charmbracelet/tap/crush"
       "prek"
@@ -74,6 +73,7 @@
       "mactex-no-gui"
       "jupyterlab"
       "cocoarestclient"
+      "claude-code"
       "codex"
       "sage"
       "surge-xt"
