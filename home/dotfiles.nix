@@ -30,4 +30,9 @@ in
   # hammerspoon — ~/.hammerspoon/init.lua
   # =====================
   home.file.".hammerspoon/init.lua".source = "${dotsDir}/hammerspoon.lua";
+
+  # =====================
+  # wezterm — ~/.wezterm.lua
+  # =====================
+  home.file.".wezterm.lua".source = "${dotsDir}/wezterm.lua";
 }
