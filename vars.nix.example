@@ -1,0 +1,6 @@
+{
+  hostName   = "your-mac-name";          # must match `scutil --get LocalHostName`
+  systemUser = "your-mac-username";      # must match `whoami`
+  gitName    = "your-git-display-name";
+  gitEmail   = "you@example.com";
+}
