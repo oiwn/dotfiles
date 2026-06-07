@@ -2,6 +2,13 @@
 
 {
   # =====================
+  # nix-darwin baseline
+  # =====================
+  system.stateVersion = 7;
+  system.primaryUser = vars.systemUser;
+  programs.fish.enable = true;
+
+  # =====================
   # System defaults
   # =====================
   system.defaults = {
