@@ -1,6 +1,15 @@
 { pkgs, ... }:
 
 {
+  home.sessionPath = [
+    "$HOME/.cargo/bin"
+  ];
+
+  home.sessionVariables = {
+    CC = "/usr/bin/cc";
+    CXX = "/usr/bin/c++";
+  };
+
   # =====================
   # Fish (needed so home-manager wires Starship into ~/.config/fish/conf.d)
   # =====================
@@ -11,6 +20,12 @@
     interactiveShellInit = ''
       if test -x /opt/homebrew/bin/brew
         /opt/homebrew/bin/brew shellenv | source
+      end
+
+      if test (uname) = Darwin; and test -x /usr/bin/xcrun
+        set -gx SDKROOT (/usr/bin/xcrun --show-sdk-path)
+        set -gx CC /usr/bin/cc
+        set -gx CXX /usr/bin/c++
       end
     '';
   };
