@@ -47,7 +47,6 @@
     nodejs
     uv
     cmake
-    gcc
     jq
     asciinema
     netlify-cli
