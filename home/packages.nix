@@ -26,10 +26,8 @@
     marksman
 
     # -------------------------------
-    # Shell & prompt
+    # Shell & prompt (managed via home-manager programs.fish / programs.starship)
     # -------------------------------
-    fish
-    starship
 
     # -------------------------------
     # Editors
@@ -49,7 +47,6 @@
     nodejs
     uv
     cmake
-    gcc
     jq
     asciinema
     netlify-cli

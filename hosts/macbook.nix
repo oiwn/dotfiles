@@ -51,6 +51,7 @@
       "gemini-cli"
       "charmbracelet/tap/crush"
       "prek"
+      "tmuxp"
     ];
 
     # GUI apps
@@ -71,7 +72,7 @@
       "slack"
       "docker-desktop"
       "mactex-no-gui"
-      "jupyterlab"
+      "jupyterlab-app"
       "cocoarestclient"
       "claude-code"
       "codex"
