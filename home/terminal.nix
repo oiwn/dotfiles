@@ -2,6 +2,8 @@
 
 {
   home.sessionPath = [
+    "/opt/homebrew/bin"
+    "/opt/homebrew/sbin"
     "$HOME/.cargo/bin"
   ];
 
@@ -15,6 +17,9 @@
   # =====================
   programs.fish = {
     enable = true;
+    shellInit = ''
+      fish_add_path --global --move /opt/homebrew/bin /opt/homebrew/sbin
+    '';
     # Homebrew on Apple Silicon — set PATH/MANPATH/etc. for fish
     # (the brew installer only patches zsh's profile, not fish's).
     interactiveShellInit = ''
