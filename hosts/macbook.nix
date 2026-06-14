@@ -51,6 +51,7 @@
       "gemini-cli"
       "charmbracelet/tap/crush"
       "prek"
+      "tmuxp"
     ];
 
     # GUI apps
