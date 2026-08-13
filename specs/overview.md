@@ -48,7 +48,7 @@ dots/ ────┴─► home.file / xdg.configFile (read-only symlinks into 
 Single command applies it all (hostname must match `vars.hostName`):
 
 ```sh
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#$(scutil --get LocalHostName)
+sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 ```
 
 ## Runtime layout — where installed software lives
@@ -64,7 +64,7 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 
 ## Design decisions
 
-- **Reproducibility is "similar," not "identical."** `flake.lock` is gitignored so each machine resolves nixpkgs-unstable fresh. Trade-off chosen deliberately: faster updates, machines drift slightly, no shared lock to maintain.
+- **Reproducibility is "similar," not "identical."** `flake.lock` is gitignored so each machine resolves fresh. Inputs are pinned to the `nixos-26.05` / `nix-darwin-26.05` / `home-manager release-26.05` release branches (not `unstable`), so `nix flake update` moves within a frozen channel → cache hits, tiny downloads between updates.
 - **Rust toolchain via `rustup`** (installed by Nix). Toolchains/components managed by rustup for flexible target/nightly switching. Rust CLI tools (ripgrep, bat, fd, eza, …) come from Nix as prebuilt binaries.
 - **Shell**: fish + starship. zsh + oh-my-zsh + p10k removed.
 - **Python**: uv (via Nix). conda/miniforge removed.
@@ -73,6 +73,7 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Fast-moving CLIs** as Homebrew brews for daily freshness: `opencode`, `gemini-cli`, `prek`, `charmbracelet/tap/crush`. Anthropic and OpenAI ship their CLIs as Homebrew **casks**: `claude-code`, `codex`.
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper kept on (no `no_quarantine`).
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
+- **`homebrew.onActivation.upgrade = false`** (with `autoUpdate = true`): switches install only *missing* brews/casks and keep the formula index fresh, but never `brew upgrade` — so a dotfile-only `switch` is seconds, not a multi-GB cask re-download. Update packages explicitly with `brew upgrade`.
 - **`home-manager.backupFileExtension = "hm-bak"`**: when home-manager wants to write a file you already have, it renames the existing one to `<file>.hm-bak` instead of refusing to activate.
 - **Dotfiles** as raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs, so files stay editable and portable across non-Nix environments.
 - **Personal values isolated in `vars.nix`** (gitignored + intent-to-add) — repo is forkable without leaking identity, and per-machine values (hostName, systemUser) don't pollute git history.

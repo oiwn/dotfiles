@@ -7,7 +7,6 @@
     # -------------------------------
     bat
     eza
-    ripgrep
     fd
     bottom
     duf
@@ -20,7 +19,6 @@
     yazi
     jless
     csvlens
-    tabiew
     television
     gitleaks
     marksman

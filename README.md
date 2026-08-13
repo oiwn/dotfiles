@@ -42,7 +42,7 @@ git add -f --intent-to-add vars.nix
 
 # 7. Apply (needs sudo; nix-darwin activation runs as root).
 #    --flake .#<host> resolves darwinConfigurations.<your-hostName>.
-sudo nix run nix-darwin/master#darwin-rebuild -- switch --flake .#$(scutil --get LocalHostName)
+sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 
 # 8. Initialize Rust toolchain (rustup itself was installed by step 7).
 #    clippy + rustfmt are bundled with the stable channel; rust-analyzer is separate.
@@ -71,7 +71,7 @@ nix flake update                                          # bump flake inputs
 sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 ```
 
-Updates nixpkgs/nix-darwin/home-manager + Homebrew brews/casks, then activates.
+Bumps nixpkgs/nix-darwin/home-manager, installs any *new* Homebrew brews/casks, then activates. Existing brews/casks are **not** upgraded (see `upgrade = false` below) — run `brew upgrade` manually when you want them refreshed.
 
 If you `git pull` and the intent-to-add registration of `vars.nix` blocks rebase, use:
 
@@ -123,14 +123,14 @@ dotfiles/
 |---|---|
 | `/opt/homebrew/bin/*` | brews + cask CLI shims (`brew`, `codex`, `opencode`, …) |
 | `/Applications/*.app` | casks (WezTerm, Slack, GIMP, …) |
-| `~/.nix-profile/bin/*` | `home.packages` (ripgrep, fd, helix, neovim, …) |
+| `~/.nix-profile/bin/*` | `home.packages` (fd, bat, helix, neovim, …) |
 | `/run/current-system/sw/bin/*` | `environment.systemPackages` (coreutils, mosh, nmap) |
 
 Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shellenv` in `interactiveShellInit`.
 
 ## Design decisions
 
-- **Rust toolchain**: `rustup` installed via Nix; toolchains/components managed by rustup (flexible targets/nightly). Rust CLI tools (ripgrep, bat, fd, eza, …) come from Nix as prebuilt binaries.
+- **Rust toolchain**: `rustup` installed via Nix; toolchains/components managed by rustup (flexible targets/nightly). Rust CLI tools (bat, fd, eza, …) come from Nix as prebuilt binaries. Exception: `ripgrep` is Homebrew-managed because it's a shared runtime dependency of the brew-managed agents (`codex`, `opencode`).
 - **Shell**: fish + starship (zsh + oh-my-zsh removed).
 - **Python**: uv instead of conda.
 - **Terminal**: WezTerm (Warp removed).
@@ -138,5 +138,6 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Fast-moving CLIs** (`opencode`, `gemini-cli`, `crush`, `prek`): Homebrew brews for daily freshness; `claude-code` and `codex` are casks (that's how Homebrew ships them).
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper left enabled.
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
+- **`homebrew.onActivation.upgrade = false`**: switches install only *missing* brews/casks — no multi-GB cask re-downloads on every `switch`. Update packages explicitly with `brew upgrade`.
 - **Dotfiles**: raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs.
 - **Personal values isolated in `vars.nix`**: gitignored, made visible to the flake via `git add -f --intent-to-add`.

@@ -37,7 +37,7 @@
     enable = true;
     onActivation = {
       autoUpdate = true;
-      upgrade = true;
+      upgrade = false;
       cleanup = "none";
     };
 
@@ -52,6 +52,9 @@
       "charmbracelet/tap/crush"
       "prek"
       "tmuxp"
+      "ripgrep"
+      "starship"
+      "tabiew"
     ];
 
     # GUI apps
