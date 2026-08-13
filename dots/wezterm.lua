@@ -26,5 +26,7 @@ return {
         cwd = wezterm.home_dir,
       },
     },
+    { key = "LeftArrow",  mods = "CMD|SHIFT", action = wezterm.action.MoveTabRelative(-1) },
+    { key = "RightArrow", mods = "CMD|SHIFT", action = wezterm.action.MoveTabRelative(1) },
   },
 }
