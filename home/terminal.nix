@@ -13,7 +13,7 @@
   };
 
   # =====================
-  # Fish (needed so home-manager wires Starship into ~/.config/fish/conf.d)
+  # Fish
   # =====================
   programs.fish = {
     enable = true;
@@ -32,13 +32,13 @@
         set -gx CC /usr/bin/cc
         set -gx CXX /usr/bin/c++
       end
+
+      # Starship prompt — brew bottle (see hosts/macbook.nix brews)
+      if type -q starship
+        starship init fish | source
+      end
     '';
   };
-
-  # =====================
-  # Starship prompt
-  # =====================
-  programs.starship.enable = true;
 
   # WezTerm: GUI from brew cask; config symlinked via home/dotfiles.nix.
 }
