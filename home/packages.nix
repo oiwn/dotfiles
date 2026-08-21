@@ -21,7 +21,6 @@
     csvlens
     television
     gitleaks
-    marksman
 
     # -------------------------------
     # Shell & prompt (managed via home-manager programs.fish / programs.starship)

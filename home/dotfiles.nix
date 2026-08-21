@@ -35,4 +35,13 @@ in
   # wezterm — ~/.wezterm.lua
   # =====================
   home.file.".wezterm.lua".source = "${dotsDir}/wezterm.lua";
+
+  # =====================
+  # pi agent — ~/.pi/agent/
+  # Config files only; state (auth.json, trust.json, sessions/, npm/,
+  # mcp-cache.json) stays live in ~/.pi/agent. settings.json is NOT managed:
+  # /settings and pi install write to it at runtime.
+  # =====================
+  home.file.".pi/agent/extensions/modes.ts".source = "${dotsDir}/pi/agent/extensions/modes.ts";
+  home.file.".pi/agent/keybindings.json".source = "${dotsDir}/pi/agent/keybindings.json";
 }
