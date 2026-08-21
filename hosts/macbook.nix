@@ -55,6 +55,7 @@
       "ripgrep"
       "starship"
       "tabiew"
+      "marksman"
     ];
 
     # GUI apps
