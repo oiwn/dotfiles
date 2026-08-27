@@ -52,6 +52,7 @@
       "charmbracelet/tap/crush"
       "prek"
       "tmuxp"
+      "zellij"
       "ripgrep"
       "starship"
       "tabiew"

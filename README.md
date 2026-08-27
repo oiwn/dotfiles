@@ -134,7 +134,7 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Shell**: fish + starship (zsh + oh-my-zsh removed).
 - **Python**: uv instead of conda.
 - **Terminal**: WezTerm (Warp removed).
-- **Multiplexer**: tmux only (zellij out of scope).
+- **Multiplexer**: tmux primary; zellij via brew (nixpkgs dropped zellij; brew tracks releases).
 - **Fast-moving CLIs** (`opencode`, `gemini-cli`, `crush`, `prek`): Homebrew brews for daily freshness; `claude-code` and `codex` are casks (that's how Homebrew ships them).
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper left enabled.
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
