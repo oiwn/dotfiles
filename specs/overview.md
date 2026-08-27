@@ -69,7 +69,7 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Shell**: fish + starship. zsh + oh-my-zsh + p10k removed.
 - **Python**: uv (via Nix). conda/miniforge removed.
 - **Terminal**: WezTerm (cask), config symlinked from `dots/wezterm.lua`.
-- **Multiplexer**: tmux only. zellij out of scope.
+- **Multiplexer**: tmux primary; zellij via brew (nixpkgs dropped zellij entirely; brew tracks releases — `brew upgrade zellij` for freshness).
 - **Fast-moving CLIs** as Homebrew brews for daily freshness: `opencode`, `gemini-cli`, `prek`, `charmbracelet/tap/crush`. Anthropic and OpenAI ship their CLIs as Homebrew **casks**: `claude-code`, `codex`.
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper kept on (no `no_quarantine`).
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
@@ -83,4 +83,5 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Sudo required**: nix-darwin activation now runs as root. Every `darwin-rebuild switch` needs `sudo`.
 - **Rebase + intent-to-add**: `git pull --rebase` fails on a dirty index. Use `git pull --rebase --autostash`, or set `git config --global rebase.autoStash true`, or set `programs.git.settings.rebase.autoStash = true` in `home/dev.nix`.
 - **New files must be git-visible before a switch**: flake eval reads the repo through git — tracked files (worktree content) plus intent-to-add entries; plain untracked files are invisible. Symptom: home-manager installs **dangling symlinks** with no build error (hit with untracked `dots/pi/` — extension/keybindings silently never appeared in `~/.pi/agent`). Fix: `git add -N <path>` before `darwin-rebuild switch`; sanity-check with `nix eval --no-warn-dirty --raw '.#<host>.config.home-manager.users.<user>.home.file."<path>".source'` and `test -f` the printed store path.
+- **Commit/rebase flows can drop the `vars.nix` intent-to-add flag** (hit after a `just stage` + commit + push round): the file stays on disk but vanishes from the git-filtered flake source → eval fails with `getting status of '.../vars.nix': No such file or directory`. Check `git ls-files -s vars.nix` (empty output = dropped; expect the empty blob `e69de29…`); re-register with `git add -f --intent-to-add vars.nix`. Worth re-checking after any pull/rebase/stash round.
 - **Hostname binding**: `flake.nix` defines exactly `darwinConfigurations.${vars.hostName}`. A new machine needs its own `vars.nix` with the right `hostName` (matching `scutil --get LocalHostName`) and its own `systemUser` (matching `whoami`).
