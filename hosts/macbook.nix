@@ -52,9 +52,11 @@
       "charmbracelet/tap/crush"
       "prek"
       "tmuxp"
+      "zellij"
       "ripgrep"
       "starship"
       "tabiew"
+      "marksman"
     ];
 
     # GUI apps

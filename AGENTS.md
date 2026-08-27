@@ -7,17 +7,26 @@ architecture + gotchas — canonical source of detail) and `specs/ctx.md` (curre
 task) before acting. Full workflow: the `specdev` skill. Do not duplicate
 specs/ content here.
 
-## Common actions
+## Agent boundaries
 
-### Apply changes (default — every edit)
+- **Never run privileged or state-changing system commands.** This includes
+  `sudo` (anything), `darwin-rebuild`, `nix flake update`, `brew install/upgrade`,
+  and `tmux kill-server`. These are run by the user, in their own terminal.
+- **Default loop: edit files, then hand over.** After edits, print the apply
+  command(s) below and ask the user to run them. Do not attempt to run them.
+- Read-only inspection (ls, rg, cat, git status/diff/log, nix flake show, etc.)
+  is always fine.
+
+## Common actions (user-run)
+
+### Apply changes (after edits)
 
 ```sh
 sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 ```
 
-Reuses the existing `flake.lock`. Fast — do this for every edit. Do **not** run
-`nix flake update` for normal edits; that bumps the channel and re-downloads the
-whole closure.
+Reuses the existing `flake.lock`. Fast. Do **not** run `nix flake update` for
+normal edits; that bumps the channel and re-downloads the whole closure.
 
 ### Bump inputs (deliberate, ~1 GB one-time download)
 
@@ -32,7 +41,8 @@ stable branches, so even this is cheap (frozen channel → mostly cache hits).
 
 ### Fixes / changes
 
-Edit the file for the layer you're changing, then re-run the switch command above:
+Edit the file for the layer you're changing, then the user re-runs the switch
+command above:
 
 | Change               | File                                    |
 |----------------------|-----------------------------------------|
