@@ -37,6 +37,11 @@ in
   home.file.".wezterm.lua".source = "${dotsDir}/wezterm.lua";
 
   # =====================
+  # zellij — ~/.config/zellij/
+  # =====================
+  xdg.configFile."zellij/config.kdl".source = "${dotsDir}/zellij.kdl";
+
+  # =====================
   # pi agent — ~/.pi/agent/
   # Config files only; state (auth.json, trust.json, sessions/, npm/,
   # mcp-cache.json) stays live in ~/.pi/agent. settings.json is NOT managed:
