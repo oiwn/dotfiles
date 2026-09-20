@@ -9,7 +9,7 @@ Declarative macOS setup using Nix (Lix) + nix-darwin + home-manager + flakes.
 | Package manager | **Lix** | Nix implementation, flakes on by default, clean uninstall |
 | macOS config | **nix-darwin** | System defaults, Homebrew integration, fonts |
 | User packages + dotfiles | **home-manager** | Declarative packages, symlinked configs from `dots/` |
-| Per-machine values | **`vars.nix`** | Gitignored; holds `hostName`, `systemUser`, `gitName`, `gitEmail` |
+| Per-machine values | **`vars.nix`** | Committed; holds `hostName`, `systemUser`, `gitName`, `gitEmail` |
 
 `flake.lock` is gitignored — each machine resolves fresh inputs on switch. Trade-off: similar (not bit-identical) environments across machines.
 
@@ -29,32 +29,27 @@ mkdir -p ~/code
 git clone https://github.com/oiwn/dotfiles.git ~/code/dotfiles
 cd ~/code/dotfiles
 
-# 5. Create vars.nix (gitignored). Fields must be exact:
+# 5. Set your machine values in vars.nix (committed with the repo). Fields must be exact:
 #    - hostName   must match `scutil --get LocalHostName`
 #    - systemUser must match `whoami`
 #    - gitName / gitEmail are your git author identity
-cp vars.nix.example vars.nix
 $EDITOR vars.nix
 
-# 6. Register vars.nix with git as intent-to-add so the flake can see it.
-#    -f overrides .gitignore; -N keeps content out of the index.
-git add -f --intent-to-add vars.nix
-
-# 7. Apply (needs sudo; nix-darwin activation runs as root).
+# 6. Apply (needs sudo; nix-darwin activation runs as root).
 #    --flake .#<host> resolves darwinConfigurations.<your-hostName>.
 sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 
-# 8. Initialize Rust toolchain (rustup itself was installed by step 7).
+# 7. Initialize Rust toolchain (rustup itself was installed by step 6).
 #    clippy + rustfmt are bundled with the stable channel; rust-analyzer is separate.
 rustup default stable
 rustup component add rust-analyzer
 
-# 9. Make fish the login shell
+# 8. Make fish the login shell
 echo "$(which fish)" | sudo tee -a /etc/shells
 chsh -s "$(which fish)"
 ```
 
-After step 7, `darwin-rebuild` is on PATH for subsequent switches (no `nix run` wrapper needed).
+After step 6, `darwin-rebuild` is on PATH for subsequent switches (no `nix run` wrapper needed).
 
 ### Pre-existing dotfiles
 
@@ -73,17 +68,8 @@ sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 
 Bumps nixpkgs/nix-darwin/home-manager, installs any *new* Homebrew brews/casks, then activates. Existing brews/casks are **not** upgraded (see `upgrade = false` below) — run `brew upgrade` manually when you want them refreshed.
 
-If you `git pull` and the intent-to-add registration of `vars.nix` blocks rebase, use:
-
-```sh
-git pull --rebase --autostash
-```
-
-Or once and for all:
-
-```sh
-git config --global rebase.autoStash true
-```
+If your index is dirty, `git pull --rebase --autostash` (or set
+`git config --global rebase.autoStash true` once and for all).
 
 ## Managing packages
 
@@ -103,8 +89,8 @@ Remove a package: delete the line, re-run switch.
 ```
 dotfiles/
   flake.nix           # inputs + darwinConfigurations + home-manager wiring
-  vars.nix.example    # template, committed
-  vars.nix            # gitignored, per machine (hostName/systemUser/gitName/gitEmail)
+  vars.nix.example    # template for fresh values, committed
+  vars.nix            # committed, per machine (hostName/systemUser/gitName/gitEmail)
   hosts/
     macbook.nix       # nix-darwin: system.defaults, homebrew brews/casks/fonts
   home/
@@ -121,10 +107,10 @@ dotfiles/
 
 | Path | Source |
 |---|---|
-| `/opt/homebrew/bin/*` | brews + cask CLI shims (`brew`, `codex`, `opencode`, …) |
+| `/opt/homebrew/bin/*` | brews + cask CLI shims (`brew`, `codex`, `mosh`, `opencode`, …) |
 | `/Applications/*.app` | casks (WezTerm, Slack, GIMP, …) |
 | `~/.nix-profile/bin/*` | `home.packages` (fd, bat, helix, neovim, …) |
-| `/run/current-system/sw/bin/*` | `environment.systemPackages` (coreutils, mosh, nmap) |
+| `/run/current-system/sw/bin/*` | `environment.systemPackages` (coreutils, nmap) |
 
 Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shellenv` in `interactiveShellInit`.
 
@@ -135,9 +121,10 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Python**: uv instead of conda.
 - **Terminal**: WezTerm (Warp removed).
 - **Multiplexer**: tmux primary; zellij via brew (nixpkgs dropped zellij; brew tracks releases).
-- **Fast-moving CLIs** (`opencode`, `gemini-cli`, `crush`, `prek`): Homebrew brews for daily freshness; `claude-code` and `codex` are casks (that's how Homebrew ships them).
+- **mosh via brew, not nixpkgs**: the nix mosh bundle ships its own OpenSSH, which rejects `UseKeychain` from `~/.ssh/config`; brew mosh invokes `ssh` from PATH (Apple's `/usr/bin/ssh`), which parses the config fine.
+- **Fast-moving CLIs** (`opencode-v2` from `anomalyco/tap` — replaced the plain `opencode` formula, same binary name, `gemini-cli`, `crush`, `prek`): Homebrew brews for daily freshness; `claude-code` and `codex` are casks (that's how Homebrew ships them).
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper left enabled.
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
 - **`homebrew.onActivation.upgrade = false`**: switches install only *missing* brews/casks — no multi-GB cask re-downloads on every `switch`. Update packages explicitly with `brew upgrade`.
 - **Dotfiles**: raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs.
-- **Personal values isolated in `vars.nix`**: gitignored, made visible to the flake via `git add -f --intent-to-add`.
+- **Personal values in `vars.nix` are committed** (de-secreted 2026-09-20): the values are machine/git identity, already public in history and commit metadata, so the old gitignored + `git add -f --intent-to-add` ceremony — and its recurring flake-eval breakage — was retired. `vars.nix.example` stays as a template; forks edit `vars.nix` to their own values.
