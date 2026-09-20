@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "web-search": {
+      "url": "https://api.z.ai/api/mcp/web_search/mcp",
+      "auth": "bearer",
+      "bearerToken": "!jq -r .zai.key ~/.pi/agent/auth.json"
+    },
+    "web-reader": {
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "auth": "bearer",
+      "bearerToken": "!jq -r .zai.key ~/.pi/agent/auth.json"
+    }
+  }
+}

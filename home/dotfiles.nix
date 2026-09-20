@@ -45,8 +45,13 @@ in
   # pi agent — ~/.pi/agent/
   # Config files only; state (auth.json, trust.json, sessions/, npm/,
   # mcp-cache.json) stays live in ~/.pi/agent. settings.json is NOT managed:
-  # /settings and pi install write to it at runtime.
+  # /settings and pi install write to it at runtime. mcp.json is managed:
+  # pi-mcp-adapter reads it but never rewrites the source file → symlink-safe.
+  # Server auth uses "!jq …" command secrets — the API key lives ONLY in
+  # ~/.pi/agent/auth.json (never in this repo/store). jq must be on PATH
+  # (it is: home.packages, and /etc/profiles is in pi's inherited PATH).
   # =====================
   home.file.".pi/agent/extensions/modes.ts".source = "${dotsDir}/pi/agent/extensions/modes.ts";
   home.file.".pi/agent/keybindings.json".source = "${dotsDir}/pi/agent/keybindings.json";
+  home.file.".pi/agent/mcp.json".source = "${dotsDir}/pi/agent/mcp.json";
 }
