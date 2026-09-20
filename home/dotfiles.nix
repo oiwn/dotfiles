@@ -59,6 +59,7 @@ in
   home.file.".pi/agent/extensions/modes/index.ts".source = "${dotsDir}/pi/agent/extensions/modes/index.ts";
   home.file.".pi/agent/extensions/modes/readonly.ts".source = "${dotsDir}/pi/agent/extensions/modes/readonly.ts";
   home.file.".pi/agent/extensions/healthcheck/index.ts".source = "${dotsDir}/pi/agent/extensions/healthcheck/index.ts";
+  home.file.".pi/agent/extensions/footer/index.ts".source = "${dotsDir}/pi/agent/extensions/footer/index.ts";
   home.file.".pi/agent/keybindings.json".source = "${dotsDir}/pi/agent/keybindings.json";
   home.file.".pi/agent/mcp.json".source = "${dotsDir}/pi/agent/mcp.json";
 }

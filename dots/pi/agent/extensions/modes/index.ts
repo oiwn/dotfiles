@@ -132,14 +132,17 @@ export default function modesExtension(pi: ExtensionAPI): void {
 	let cwd = ".";
 	let hasSpecs = false;
 
+	// Always set a status: the one-line footer extension (and pi's default
+	// footer) read it via getExtensionStatuses() — absence would read as
+	// "mode unknown" rather than "implement".
 	function updateStatus(ctx: ExtensionContext): void {
-		if (mode === "research") {
-			ctx.ui.setStatus("modes", ctx.ui.theme.fg("warning", "🔍 research"));
-		} else if (mode === "plan") {
-			ctx.ui.setStatus("modes", ctx.ui.theme.fg("accent", "🧭 plan"));
-		} else {
-			ctx.ui.setStatus("modes", undefined);
-		}
+		const status =
+			mode === "research"
+				? ctx.ui.theme.fg("warning", "🔍 research")
+				: mode === "plan"
+					? ctx.ui.theme.fg("accent", "🧭 plan")
+					: ctx.ui.theme.fg("dim", "⚙ implement");
+		ctx.ui.setStatus("modes", status);
 	}
 
 	function applyTools(): void {
