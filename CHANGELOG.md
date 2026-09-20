@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-21 — one-line status footer extension
+
+- **New `/footer` extension** (`dots/pi/agent/extensions/footer/index.ts`, default on): replaces pi's multi-segment footer with one line — `~/code/dotfiles · ↑1.4M ↓108k · 17.2%/1.0M · glm-5.3 · 🧭 plan`. Segments: abbreviated cwd, cumulative in/out tokens (session entries incl. compaction usage blocks — counts survive compaction), context % via `ctx.getContextUsage()` with pi's >70/>90 colorization (`?/window` right after compaction), model id, mode from extension statuses. Dropped: R/W cache tokens, CH%, $, `(auto)`. `/footer` toggles custom ↔ default; live updates via `onBranchChange` + `model_select`/`agent_end` re-renders.
+- **modes**: footer status is now always-on — `⚙ implement` (dim) where it previously cleared the status; research/plan unchanged.
+- Default-footer stats decoded and documented in `specs/ctx.md` findings (`R` = cache-read, not reasoning; `CH%` = latest-request cache-hit rate).
+
 ## 2026-09-20 — vars.nix de-secreted: committed, staging ceremony removed
 
 - **Policy flip**: `vars.nix` is now a normal tracked, committed file. Rationale: its values (hostName/systemUser/gitName/gitEmail) have been public in pushed history since `2b9805b` and in commit metadata regardless; the gitignore + `git add -f --intent-to-add` ceremony protected nothing not already exposed while costing recurring flake-eval breakage (flag dropped after pull/rebase/stash rounds → eval fails / dangling symlinks).
