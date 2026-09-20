@@ -14,8 +14,8 @@ ENV/
 # Nix
 result
 .direnv
-vars.nix
 flake.lock
 
-# agents
-.agents/
+# agents (local agent state ignored; skills are repo infrastructure — versioned)
+.agents/*
+!.agents/skills/
