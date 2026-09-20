@@ -1,95 +1,88 @@
 # Current Task Context
 
-## Task: z.ai web tools (search + reader) via remote MCP — option A pivot
+## Fix: web-search server → web_search_prime (2026-09-20)
 
-State: implement — file-side done; **waiting on user git + switch**.
+State: **plan written — awaiting /mode implement.**
 
-### Goal
+### What was wrong (user caught it)
 
-Live-web tools in pi via z.ai's remote MCP servers, billed to the GLM Coding
-Plan credits (verified included: "MCP tool credit usage = Number of calls ×
-Output multiplier"). Key stays exclusively in `~/.pi/agent/auth.json` — read
-at connect time by the adapter's command-secret; zero env vars, zero key
-copies in git/nix store/managed files. The REST extensions built earlier are
-removed (dead code: REST endpoints are pay-per-use open-platform APIs, plan
-key gets 1113 there).
+The search 429s were **not account-side**: `dots/pi/agent/mcp.json` pointed at
+the wrong endpoint. I pattern-matched `…/mcp/web_search/mcp` from the reader
+URL instead of reading the search MCP docs page. That endpoint exists
+(initializes fine — which masked the mistake) but serves the legacy
+open-platform tools (`webSearch{Sogou,Quark,Pro,Std}`) → "no resource
+package" 429. The GLM Coding Plan search server per current devpack docs
+(page's Roo/Kilo tab, user-provided; confirmed via llms-full.txt) is:
 
-### Deliverable — `dots/pi/agent/mcp.json`
+- name `web-search-prime`, url `https://api.z.ai/api/mcp/web_search_prime/mcp`
+- tool `webSearchPrime` (premium engine)
+- endpoint existence re-verified: keyless GET → 1001 auth-wanted, same as
+  known-good endpoints
 
-```json
-{
-  "mcpServers": {
-    "web-search": {
-      "url": "https://api.z.ai/api/mcp/web_search/mcp",
-      "auth": "bearer",
-      "bearerToken": "!jq -r .zai.key ~/.pi/agent/auth.json"
-    },
-    "web-reader": {
-      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
-      "auth": "bearer",
-      "bearerToken": "!jq -r .zai.key ~/.pi/agent/auth.json"
-    }
-  }
-}
-```
+### Plan
 
-### Decisions (source-verified against pi-mcp-adapter @ ~/.pi/agent/npm)
+- [x] `dots/pi/agent/mcp.json`: `web-search` entry replaced with
+      `"web-search-prime"` → `https://api.z.ai/api/mcp/web_search_prime/mcp`
+      (same `auth: "bearer"` + `!jq` bearerToken; `web-reader` unchanged).
+      Valid JSON; servers now `web-reader` + `web-search-prime`.
+- [ ] User: git (their flow) + `sudo darwin-rebuild switch --flake
+      .#$(scutil --get LocalHostName)`.
+- [x] **Pre-switch probes (raw JSON-RPC, saved a blind switch cycle):**
+      initialize → 200 `mcp-web-search-prime v0.0.1` (key accepted);
+      `tools/list` → real tool name is **`web_search_prime`** (docs'
+      `webSearchPrime` is wrong); params: `search_query` (req),
+      `search_domain_filter`, `search_recency_filter`, `content_size`
+      (medium/high), `location` (cn/us); **no `count`**, strict schema
+      (`additionalProperties: false`). Billable `tools/call` → **live
+      results, no 429** — plan credits apply. ✅
+- [ ] After switch: `connect web-search-prime` via the adapter (restart
+      session if it holds the stale `web-search` registration), probe
+      `web_search_prime` through the gateway; re-diff repo vs deployed
+      store copy; close out.
 
-- `auth: "bearer"` is **required** — `server-manager.ts` resolves
-  `bearerToken` only under that auth mode; adapter prefixes `Bearer ` itself.
-- `!command` secrets run via `spawnSync(cmd, { shell: true })` → `~` expands,
-  stdout is trimmed (≤1 MiB, 10 s, exit 0, non-empty). jq is at
-  `/etc/profiles/per-user/alexch/bin/jq` and that dir is in pi's inherited
-  PATH (verified in-session) — bare `jq` resolves.
-- Adapter never rewrites the source `mcp.json` (prior finding) → safe to
-  symlink `dots/pi/agent/mcp.json` via `home.file` like the other pi configs.
-- SSE responses: adapter does StreamableHTTP with SSE fallback natively.
+### Risks
 
-### Steps
+- None new: same auth mechanism (source-verified in the adapter), same file
+  wiring; only URL/name change.
+- Stale `web-search` registration in the live session until restart —
+  harmless.
 
-- [x] Write `dots/pi/agent/mcp.json` (content above). Verified: valid JSON;
-      secret command returns a non-empty 49-char key without echoing it.
-- [x] `home/dotfiles.nix`: mcp.json line added; both `zai-web-*.ts` lines
-      removed; pi-agent comment block extended (symlink-safety, auth.json-only
-      key, jq-on-PATH note). File parses (`nix-instantiate --parse`).
-- [x] Delete `dots/pi/agent/extensions/zai-web-search.ts` +
-      `zai-web-reader.ts` (dir back to modes.ts + modes.test.ts).
-- [ ] **User-owned git** (user took git over): `git add -N
-      dots/pi/agent/mcp.json` before switch (flake visibility — else silent
-      dangling symlink); stage the two `D` deletions + modified files when
-      committing (their usual `just stage` flow).
-- [ ] User runs: `sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)`.
-- [ ] Session: `/reload`; check MCP servers connect (mcp gateway status).
-      If the servers don't appear after `/reload`, restart the pi session
-      (adapter reads mcp.json at startup).
-- [ ] Live probes: `web-search` (real query) + `web-reader`
-      (https://example.com) via mcp gateway; confirm tool names/namespace.
-- [ ] Key-leak audit: key literal absent from repo diff, `dots/pi/agent/mcp.json`
-      (contains only the reference, not the key), and store paths;
-      `~/.pi/agent/extensions/` back to `modes.ts` only (home-manager removes
-      its own dead symlinks).
-- [ ] Close out: check boxes, summarize under Findings.
+## History: z.ai web tools (option A pivot, 2026-09-19 → 09-20)
 
-### Risks / stop-and-discuss
+Goal: live-web tools in pi via z.ai remote MCP servers, billed to GLM Coding
+Plan credits; key exclusively in `~/.pi/agent/auth.json` via adapter
+command-secret (`!jq -r .zai.key ~/.pi/agent/auth.json` under
+`auth: "bearer"`) — zero env vars, zero key copies in git/store.
 
-- A `tools/call` returning 1113 (plan credits not applying) → stop, report.
-- Tool naming/namespace after pivot unknown until probe (adapter may prefix) —
-  cosmetic, discovered at verification.
-- jq PATH assumption holds for sessions launched from the user's shell
-  (always the case here); a clean-env launch would fail the secret command
-  with a clear adapter error — acceptable, documented in dotfiles.nix comment.
-- MCP context overhead: mitigated by pi-mcp-adapter's lazy loading.
+Done & verified:
 
-### Findings (history, 2026-09-19)
+- [x] Earlier REST-extension route (search `/paas/v4/web_search`, reader
+      `/paas/v4/reader`) built, wired, switched — then removed: REST tools
+      are open-platform pay-per-use (plan key gets 1113). Extensions dir back
+      to `modes.ts` only.
+- [x] `dots/pi/agent/mcp.json` created (web-search + web-reader) + wired via
+      `home/dotfiles.nix` (symlink-safe: adapter never rewrites the source).
+- [x] Switched (user), deployed store copy verified identical to repo,
+      key-leak audit clean (jq-reference only; key never in any managed file).
+- [x] Both servers connected with the command-secret auth.
+      **web-reader ✅ works** (`web-reader_webReader`: title/content/metadata
+      on example.com, plan-credit billing).
+      **web-search ❌ 429** — misdiagnosed account-side at the time; actual
+      cause: wrong endpoint (see fix above).
 
-- Extensions (REST route) worked end-to-end but z.ai returns **1113** on
-  `/paas/v4/web_search` + `/reader` (and the coding base
-  `/api/coding/paas/v4/*`) — those are open-platform pay-per-use APIs; GLM
-  Coding Plan credits don't apply. Extension files + home.file wiring were
-  implemented, verified (store paths, parse, key-leak clean), and now get
-  removed by this pivot.
-- MCP endpoints accept the plan key: `initialize` → HTTP 200 on both
-  `api.z.ai/api/mcp/web_search/mcp` and `…/web_reader/mcp`.
-- Coding-plan chat base URL (models.dev `zai-coding-plan`):
+### Findings (durable)
+
+- REST `/paas/v4/*` (and `/api/coding/paas/v4/*`): open-platform, pay-per-use
+  — plan credits don't apply (1113). MCP is the plan-billed route.
+- Coding-plan chat base (models.dev `zai-coding-plan`):
   `https://api.z.ai/api/coding/paas/v4` — distinct from open-platform
-  `/api/paas/v4` and from the MCP bases.
+  `/api/paas/v4` and from MCP bases.
+- Adapter auth (source-verified, pi-mcp-adapter @ ~/.pi/agent/npm):
+  `bearerToken` requires `auth: "bearer"`; `!cmd` secrets run via
+  `spawnSync(cmd, { shell: true })` — `~` expands; jq resolves via inherited
+  PATH (`/etc/profiles/per-user/alexch/bin`).
+- Legacy search server tool params (for reference): `search_query` (req),
+  `count`, `search_domain_filter`, `search_recency_filter`, `content_size`.
+- **Lesson: read the actual docs page for each endpoint — don't infer URLs by
+  pattern from sibling services; a wrong-but-existing endpoint initializes
+  fine and hides the mistake until first billable call.**
