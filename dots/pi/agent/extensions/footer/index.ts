@@ -23,9 +23,12 @@
  * (auto) compaction tag. formatTokens/formatCwd reimplemented locally —
  * pi's footer module is internal, not extension API.
  *
- * /footer toggles custom ↔ default (default: on, installed at session_start).
- * Stays live via footerData.onBranchChange + requestRender on model_select
- * and agent_end.
+ * The model segment carries the LIVE thinking level (glm-5.3·h) read via
+ * pi.getThinkingLevel() — so ctrl+alt+t cycling mid-mode is visible, and a
+ * mode switch visibly re-asserts the binding. /footer toggles custom ↔
+ * default (default: on, installed at session_start). Stays live via
+ * footerData.onBranchChange + requestRender on model_select,
+ * thinking_level_select, and agent_end.
  */
 
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
@@ -82,6 +85,24 @@ const MODE_SLOT_WIDTH = Math.max(
 	...["🔍 research", "🧭 plan", "⚙ implement"].map((s) => visibleWidth(s)),
 );
 
+/** Compact thinking-level letter for the model segment.
+ * ThinkingLevel = off | minimal | low | medium | high | xhigh | max. */
+const LEVEL_SHORT: Record<string, string> = {
+	off: "off",
+	minimal: "min",
+	low: "l",
+	medium: "m",
+	high: "h",
+	xhigh: "xh",
+	max: "max",
+};
+
+function shortLevel(level: string | undefined): string {
+	if (!level) return "";
+	const short = LEVEL_SHORT[level];
+	return short ? `·${short}` : `·${level}`;
+}
+
 export default function footerExtension(pi: ExtensionAPI): void {
 	let enabled = false;
 	let ctxRef: ExtensionContext | undefined;
@@ -128,7 +149,7 @@ export default function footerExtension(pi: ExtensionAPI): void {
 					const ctxTokens = theme.fg("dim", usage && usage.tokens !== null ? formatTokens(usage.tokens) : "?");
 
 					const left = `${theme.fg("dim", formatCwd(ctx.cwd))} · ${modeSlot} · ↑${formatTokens(input)} ↓${formatTokens(output)} · ${contextStr}`;
-					const right = `${ctxTokens} · ${theme.fg("dim", ctx.model?.id ?? "no-model")}`;
+					const right = `${ctxTokens} · ${theme.fg("dim", (ctx.model?.id ?? "no-model") + shortLevel(pi.getThinkingLevel()))}`;
 
 					const lw = visibleWidth(left);
 					const rw = visibleWidth(right);
@@ -157,8 +178,10 @@ export default function footerExtension(pi: ExtensionAPI): void {
 		},
 	});
 
-	// Keep segments live: model switches and finished turns change the line.
+	// Keep segments live: model switches, thinking-level changes (native
+	// ctrl+alt+t cycle included), and finished turns change the line.
 	pi.on("model_select", async () => tuiRef?.requestRender());
+	pi.on("thinking_level_select", async () => tuiRef?.requestRender());
 	pi.on("agent_end", async () => tuiRef?.requestRender());
 
 	// Default on for every session.

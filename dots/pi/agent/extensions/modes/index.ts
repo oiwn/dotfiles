@@ -9,6 +9,14 @@
  *            specs/**; bash still read-only.
  * implement  full access (stock pi behavior — the default).
  *
+ * Each mode also binds its model (MODEL_BINDINGS): research/plan →
+ * glm-5.3, implement → glm-5.3-flash; thinking research=high,
+ * plan=medium, implement=high. Applied on every setMode and at
+ * session_start via session-scoped pi.setModel() (settings.json default
+ * for NEW sessions untouched); pi's manual /model and the thinking cycle
+ * (ctrl+alt+t) work mid-mode and hold until the next mode switch
+ * re-asserts.
+ *
  * Banners are specs-aware: `specs/` existence is detected once at
  * session_start (cwd is fixed per session) and each mode injects a specs or
  * plain variant on every before_agent_start. specdev is framed as awareness
@@ -50,6 +58,15 @@ const MODE_DESCRIPTIONS: Record<Mode, string> = {
 	research: "read-only exploration: understand the problem, survey materials (specs, docs, web), discuss with the user",
 	plan: "read-only exploration + specs/** planning (specdev)",
 	implement: "full access",
+};
+
+// Model per mode — deterministic, user-controlled binding (the agent never
+// picks its own model). setModel is session-scoped: settings.json's default
+// for new sessions is never touched.
+const MODEL_BINDINGS: Record<Mode, { provider: string; model: string; thinking: "high" | "medium" | "low" }> = {
+	research: { provider: "zai", model: "glm-5.3", thinking: "high" }, // the "pro" setting — smartest
+	plan: { provider: "zai", model: "glm-5.3", thinking: "medium" },
+	implement: { provider: "zai", model: "glm-5.3-flash", thinking: "high" },
 };
 
 const COMMON_RESEARCH_TAIL = `edit/write are disabled; bash is limited to read-only commands. Conclude by presenting the problem as you understand it, the requirements, and proposed goals — then discuss with the user until you agree. Only after agreement switch: /mode plan.`;
@@ -167,8 +184,33 @@ export default function modesExtension(pi: ExtensionAPI): void {
 		mode = next;
 		applyTools();
 		updateStatus(ctx);
+		applyModelBinding(ctx);
 		persistState();
-		ctx.ui.notify(`Mode: ${mode} — ${MODE_DESCRIPTIONS[mode]}`, "info");
+		ctx.ui.notify(
+			`Mode: ${mode} — ${MODE_DESCRIPTIONS[mode]} · ${MODEL_BINDINGS[mode].model} (${MODEL_BINDINGS[mode].thinking})`,
+			"info",
+		);
+	}
+
+	/** Look up the mode's model and switch (session-scoped). Failures notify and
+	 * keep the current model — never silently run on the wrong one. */
+	function applyModelBinding(ctx: ExtensionContext): void {
+		const binding = MODEL_BINDINGS[mode];
+		const model = ctx.modelRegistry.find(binding.provider, binding.model);
+		if (!model) {
+			ctx.ui.notify(
+				`model-per-mode: ${binding.provider}/${binding.model} not in registry — keeping current model`,
+				"error",
+			);
+			return;
+		}
+		void pi.setModel(model).then((ok) => {
+			if (!ok) {
+				ctx.ui.notify(`model-per-mode: setModel(${binding.model}) failed — keeping current model`, "error");
+				return;
+			}
+			pi.setThinkingLevel(binding.thinking);
+		});
 	}
 
 	pi.registerCommand("mode", {
@@ -295,5 +337,9 @@ export default function modesExtension(pi: ExtensionAPI): void {
 		// authoritative (a resumed session may land in a different cwd).
 		applyTools();
 		updateStatus(ctx);
+		// Deterministic binding at startup too (D2): fresh session boots in
+		// implement → flash; restored mode gets its model back. Manual /model
+		// choices from a previous session are not persisted by pi anyway.
+		applyModelBinding(ctx);
 	});
 }

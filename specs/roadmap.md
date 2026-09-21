@@ -39,15 +39,6 @@
 
 ## Planned
 
-### Per-mode model binding (modes extension) — next up
-
-Bind model + thinking level to the working mode: research/plan → high-reasoning model, implement → fast/cheap ("flash"-class). Extend `dots/pi/agent/extensions/modes/index.ts`:
-
-- `MODEL_BINDINGS: Record<Mode, {provider, model, thinking}>` — single table, applied in `setMode()` via `pi.setModel()` + `pi.setThinkingLevel()` (pi's `preset.ts` example shows the pattern: setModel/setThinkingLevel/appendEntry).
-- Persist alongside the mode (`appendEntry` already stores mode state; restore on `session_start`).
-- Footer already shows the mode; consider surfacing the model switch too (`model-status.ts` pattern / `model_select` event).
-- Candidates from the `zai` provider: high-thinking GLM for research/plan, flash-class for implement — confirm exact model ids in pi's model registry before wiring.
-
 ### Nix packages to add (in `home/packages.nix`)
 
 - `libyaml`

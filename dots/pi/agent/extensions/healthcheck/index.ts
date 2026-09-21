@@ -159,11 +159,33 @@ async function gatherSections(pi: ExtensionAPI): Promise<Section[]> {
 			: { status: "fail", name: "modes extension", detail: "extensions/modes/index.ts missing — run darwin-rebuild switch" },
 	);
 
+	// --- pi packages (runtime-managed: settings.json `packages`) --------------
+	// cc-safety-net is a CLI-hook install (not a pi package): detected via its
+	// config dir and/or a settings.json mention; `npx cc-safety-net status`
+	// remains the authoritative check.
+	const pkgs = readFileJson(join(AGENT_DIR, "settings.json"));
+	const installedPackages: string[] = Array.isArray(pkgs?.packages)
+		? (pkgs!.packages as unknown[]).map(String)
+		: [];
+	const pkgRow = (name: string): Row =>
+		installedPackages.some((p) => p === `npm:${name}` || p === name)
+			? { status: "ok", name, detail: "installed (settings.json packages)" }
+			: { status: "fail", name, detail: `not installed — pi install npm:${name}` };
+	const settingsRaw = existsSync(join(AGENT_DIR, "settings.json"))
+		? readFileSync(join(AGENT_DIR, "settings.json"), "utf8")
+		: "";
+	const ccsnDetected =
+		existsSync(join(homedir(), ".cc-safety-net")) || settingsRaw.includes("cc-safety-net");
+	const ccsnRow: Row = ccsnDetected
+		? { status: "ok", name: "cc-safety-net", detail: "config present — verify with: npx cc-safety-net status" }
+		: { status: "warn", name: "cc-safety-net", detail: "not detected — npx -y cc-safety-net@latest install" };
+
 	return [
 		{ title: "core", rows: [core] },
 		{ title: "CLI instruments (modes/readonly.ts)", rows: cliRows },
 		{ title: "specdev", rows: [skillRow] },
 		{ title: "MCP", rows: [...mcpRows, ...regRows] },
+		{ title: "pi packages", rows: [pkgRow("pi-subagents"), pkgRow("pi-lens"), ccsnRow] },
 		{ title: "agent config", rows: cfgRows },
 	];
 }

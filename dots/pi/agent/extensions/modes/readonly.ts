@@ -36,7 +36,7 @@ export interface ReadOnlyEntry {
  */
 export const CLI_INSTRUMENTS: readonly {
 	name: string;
-	source: "nix" | "brew" | "cargo";
+	source: "nix" | "brew" | "cargo" | "rustup";
 	note: string;
 }[] = [
 	{ name: "rg", source: "brew", note: "code search (rust grep)" },
@@ -48,6 +48,7 @@ export const CLI_INSTRUMENTS: readonly {
 	{ name: "jq", source: "nix", note: "JSON (mcp.json command secret)" },
 	{ name: "specdev", source: "cargo", note: "specs workflow (user crate)" },
 	{ name: "pginf", source: "cargo", note: "web page fetch (user crate)" },
+	{ name: "rust-analyzer", source: "rustup", note: "Rust LSP (pi-lens)" },
 ];
 
 // --- allowlist ----------------------------------------------------------------
