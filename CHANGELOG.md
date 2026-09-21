@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-21 — model per mode (modes extension)
+
+- **Deterministic mode→model binding** in `dots/pi/agent/extensions/modes/index.ts`: `MODEL_BINDINGS` (research/plan → `zai/glm-5.3`, implement → `zai/glm-5.3-flash`, thinking `high` everywhere) applied via `applyModelBinding()` on every `setMode()` and at `session_start` (fresh boot in implement → flash). Session-scoped `pi.setModel` — settings.json default for new sessions untouched. Lookup miss or auth failure → error notify, current model kept. Mode notification now suffixes the applied model; the one-line footer's model segment follows automatically (re-renders on `model_select`). Manual `/model` mid-mode holds until the next mode switch re-asserts.
+- **Per-mode thinking levels** (follow-up round): research `glm-5.3` (high), plan `glm-5.3` (**medium**), implement `glm-5.3-flash` (high); type widened to `high|medium|low`; notification suffix gains the level (`· glm-5.3 (medium)`) so research/plan are distinguishable. Native `ctrl+alt+t` thinking cycle = temporary override, re-asserted on next mode switch; per-model persisted defaults stay native (`ctrl+s` / `modelThinkingLevels`).
+- **Live thinking level in the footer** (follow-up round 2): model segment reads `pi.getThinkingLevel()` at render time — `glm-5.3·h` / `glm-5.3·m` / `glm-5.3-flash·h` — so `ctrl+alt+t` cycling is visible and mode switches visibly re-assert; `thinking_level_select` added to the re-render triggers.
+- Decisions: D1 thinking high in all modes; D2 deterministic session-start application; D3 manual override tolerated between switches. `pi-model-switch` (npm) evaluated and rejected — agent-invoked switching, the LLM decides; wrong direction for user-controlled binding.
+- Roadmap item picked up into `specs/ctx.md` per the working loop.
+
 ## 2026-09-21 — one-line status footer extension
 
 - **New `/footer` extension** (`dots/pi/agent/extensions/footer/index.ts`, default on): replaces pi's multi-segment footer with one line — `~/code/dotfiles · 🔍 research · ↑1.4M ↓108k · 17.2%/1.0M · 172k · glm-5.3`. Left block: abbreviated cwd, mode in a fixed-width slot right after cwd (visibleWidth-padded — mode switches never move later segments), cumulative in/out tokens (session entries incl. compaction usage blocks — counts survive compaction), context % via `ctx.getContextUsage()` with pi's >70/>90 colorization. Right block: absolute context tokens + model id. Spacer line after the status keeps it off the editor; `?`/`?/window` right after compaction. Dropped: R/W cache tokens, CH%, $, `(auto)`. `/footer` toggles custom ↔ default; live updates via `onBranchChange` + `model_select`/`agent_end` re-renders.
