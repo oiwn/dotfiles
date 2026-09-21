@@ -1,21 +1,22 @@
 /**
  * /footer — one-line status footer.
  *
- * Replaces pi's default multi-segment footer stats with a single line:
+ *   ~/code/dotfiles · 🔍 research · ↑1.4M ↓108k · 17.2%/1.0M · 172k · glm-5.3
  *
- *   ~/code/dotfiles · ↑1.4M ↓108k · 17.2%/1.0M · glm-5.3 · 🧭 plan
- *
- * Segments: abbreviated cwd, cumulative input/output tokens, context usage
- * (pi's >70%/>90% colorization), model id, and the mode status set by the
- * modes extension (read via footerData.getExtensionStatuses()).
+ * Left block: abbreviated cwd, mode (fixed-width slot right after cwd — mode
+ * switches never move the segments after it), cumulative in/out tokens,
+ * context usage with pi's >70%/>90% colorization. Right block: absolute
+ * context tokens, model id. A spacer line after the status keeps it from
+ * pressing against the editor.
  *
  * Data sources (all public extension API — verified in pi's
  * core/extensions/types.d.ts):
  * - tokens: ctx.sessionManager.getEntries() — assistant message usage PLUS
  *   branch_summary/compaction usage blocks, so counts survive compaction
  *   (a getBranch()-only sum resets at every compaction)
- * - context: ctx.getContextUsage() — compaction-aware, nulls right after a
- *   compaction until the next LLM response (rendered as "?/window" like pi)
+ * - context: ctx.getContextUsage() — compaction-aware; percent/tokens are
+ *   null right after a compaction until the next LLM response (rendered as
+ *   "?/window" and "?" respectively, like pi)
  * - model: ctx.model; cwd: ctx.cwd; mode: extension statuses ("modes")
  *
  * Dropped from the default footer: R/W cache tokens, CH% hit rate, $ cost,
@@ -74,6 +75,13 @@ function cumulativeTokens(entries: readonly unknown[]): { input: number; output:
 	return { input, output };
 }
 
+// Widest mode status defines the slot width — mode switches change only the
+// slot's content, never the position of the segments after it. Emoji render
+// width-2, hence visibleWidth rather than string length.
+const MODE_SLOT_WIDTH = Math.max(
+	...["🔍 research", "🧭 plan", "⚙ implement"].map((s) => visibleWidth(s)),
+);
+
 export default function footerExtension(pi: ExtensionAPI): void {
 	let enabled = false;
 	let ctxRef: ExtensionContext | undefined;
@@ -111,16 +119,24 @@ export default function footerExtension(pi: ExtensionAPI): void {
 						contextStr = theme.fg("dim", `?/${window > 0 ? formatTokens(window) : "?"}`);
 					}
 
-					const left = `${theme.fg("dim", formatCwd(ctx.cwd))} · ↑${formatTokens(input)} ↓${formatTokens(output)} · ${contextStr}`;
-					const modeStatus = footerData.getExtensionStatuses().get("modes") ?? theme.fg("dim", "⚙ implement");
-					const right = `${theme.fg("dim", ctx.model?.id ?? "no-model")} · ${modeStatus}`;
+					// Fixed-width mode slot, left-aligned: mode switches must not
+					// shift tokens/context/model.
+					const modeStatus = footerData.getExtensionStatuses().get("modes") ?? "⚙ implement";
+					const modeSlot = modeStatus + " ".repeat(Math.max(0, MODE_SLOT_WIDTH - visibleWidth(modeStatus)));
+
+					// Absolute context tokens, right before the model name.
+					const ctxTokens = theme.fg("dim", usage && usage.tokens !== null ? formatTokens(usage.tokens) : "?");
+
+					const left = `${theme.fg("dim", formatCwd(ctx.cwd))} · ${modeSlot} · ↑${formatTokens(input)} ↓${formatTokens(output)} · ${contextStr}`;
+					const right = `${ctxTokens} · ${theme.fg("dim", ctx.model?.id ?? "no-model")}`;
 
 					const lw = visibleWidth(left);
 					const rw = visibleWidth(right);
+					// Spacer line after the status keeps it off the editor.
 					if (lw + rw + 1 > width) {
-						return [truncateToWidth(`${left} ${right}`, width)];
+						return [truncateToWidth(`${left} ${right}`, width), ""];
 					}
-					return [left + " ".repeat(width - lw - rw) + right];
+					return [left + " ".repeat(width - lw - rw) + right, ""];
 				},
 			};
 		});
