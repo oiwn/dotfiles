@@ -4,7 +4,7 @@
 
 - **New `/footer` extension** (`dots/pi/agent/extensions/footer/index.ts`, default on): replaces pi's multi-segment footer with one line — `~/code/dotfiles · 🔍 research · ↑1.4M ↓108k · 17.2%/1.0M · 172k · glm-5.3`. Left block: abbreviated cwd, mode in a fixed-width slot right after cwd (visibleWidth-padded — mode switches never move later segments), cumulative in/out tokens (session entries incl. compaction usage blocks — counts survive compaction), context % via `ctx.getContextUsage()` with pi's >70/>90 colorization. Right block: absolute context tokens + model id. Spacer line after the status keeps it off the editor; `?`/`?/window` right after compaction. Dropped: R/W cache tokens, CH%, $, `(auto)`. `/footer` toggles custom ↔ default; live updates via `onBranchChange` + `model_select`/`agent_end` re-renders.
 - **modes**: footer status is now always-on — `⚙ implement` (dim) where it previously cleared the status; research/plan unchanged.
-- Default-footer stats decoded and documented in `specs/ctx.md` findings (`R` = cache-read, not reasoning; `CH%` = latest-request cache-hit rate).
+- Default-footer stats decoded and documented in `specs/overview.md` operational notes (`R` = cache-read, not reasoning; `CH%` = latest-request cache-hit rate).
 
 ## 2026-09-20 — vars.nix de-secreted: committed, staging ceremony removed
 
