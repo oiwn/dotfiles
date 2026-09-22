@@ -1,11 +1,17 @@
 # Changelog
 
+## 2026-09-21 — disk-reclaim `gc` recipe
+
+- **`just gc [window=14d]`**: `nix-collect-garbage --delete-older-than <window>` + `brew cleanup --prune=all` — reclaims old nix system generations and the brew download cache; keeps `<window>` of rollback (`gc 0d` ≈ `nix-collect-garbage -d`, no rollback). README "Daily updates" gains a "Reclaim disk" subsection (gc, custom window, `--dry-run` preview, max-reclaim tradeoff).
+- Motivation (2026-09-21 measurements): `/` at 85% (69G free); `/nix/store` 46G across 26 system generations — gens 1–5 pin three dead nixpkgs eras (`26.11.aabb203`, `d5bd9cd`, `15abb8c`); brew cache 17G. No per-user nix profiles exist (home-manager rides the system closure), so the system profile is the only GC root family.
+
 ## 2026-09-21 — 3 pi extensions adopted · pi_setup.md
 
 - **`just pi-setup` → 7 packages**: added `@narumitw/pi-usage` (`/usage` — Z.AI GLM Coding Plan quota: 5h/weekly windows, monthly MCP allowance, plan level; menu-only for zai, no statusline item), `@juicesharp/rpiv-ask-user-question` (`ask_user_question` tool — tabbed dialog, typed options with descriptions, free-text row, per-question notes; the model asks instead of guessing), `@juicesharp/rpiv-todo` (`todo` tool + `/todos` + live panel above the editor; state replayed from the conversation — survives `/reload`/compaction; session-isolated from subagent children). Vetted in research: rpiv pair is zero-dep / no-network / no-disk-writes; pi-usage holds credentials in memory only, origin-validates before sending, fails closed. Collision-checked against keybindings (`ctrl+alt+t` vs `ctrl+shift+t`/`ctrl]`), the footer extension, and pi-subagents.
 - **`pi_setup.md`** (repo root, new): reference for the pi setup's three layers — nix-managed config (`dots/pi/agent/`), imperative-converged runtime packages (`just pi-setup`), runtime-mutable state (`settings.json`/`auth.json`) — plus the package catalog and operating commands. Per decision, the package catalog lives here, not in specs; `specs/overview.md`'s pi bullet and README (bootstrap step 9 + package-table row) point to it.
 - Closes the predecessor adoption task's pending docs round (pi-subagents/pi-lens/cc-safety-net): its recipe was already in the Justfile and its extension edits already shipped.
-- Evaluated and skipped: `pi-delete-session` (brand-new, 0 dependents — hand `rm` of session files is trivial); vetting record in `specs/ctx.md`.
+- Evaluated and skipped: `pi-delete-session` (brand-new, 0 dependents — hand `rm` of session files is trivial).
+- **Shipped as `555d471`**, verified in a fresh pi session; `pi_setup.md` carries the durable detail (specs/ctx.md compressed to idle).
 
 ## 2026-09-21 — model per mode (modes extension)
 

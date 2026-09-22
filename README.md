@@ -74,6 +74,18 @@ Bumps nixpkgs/nix-darwin/home-manager, installs any *new* Homebrew brews/casks, 
 If your index is dirty, `git pull --rebase --autostash` (or set
 `git config --global rebase.autoStash true` once and for all).
 
+### Reclaim disk
+
+```sh
+just gc                              # nix: drop generations older than 14d; brew: clear the download cache
+just gc 7d                           # custom rollback window
+nix-collect-garbage --dry-run        # preview only, deletes nothing
+```
+
+`just gc` keeps the given window of system generations for rollback (default
+`14d`) and clears the brew cache. Maximum reclaim is `nix-collect-garbage -d`
+— leaves no old generations to roll back to.
+
 ## Managing packages
 
 | Change | File | Then |
