@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-21 — 3 pi extensions adopted · pi_setup.md
+
+- **`just pi-setup` → 7 packages**: added `@narumitw/pi-usage` (`/usage` — Z.AI GLM Coding Plan quota: 5h/weekly windows, monthly MCP allowance, plan level; menu-only for zai, no statusline item), `@juicesharp/rpiv-ask-user-question` (`ask_user_question` tool — tabbed dialog, typed options with descriptions, free-text row, per-question notes; the model asks instead of guessing), `@juicesharp/rpiv-todo` (`todo` tool + `/todos` + live panel above the editor; state replayed from the conversation — survives `/reload`/compaction; session-isolated from subagent children). Vetted in research: rpiv pair is zero-dep / no-network / no-disk-writes; pi-usage holds credentials in memory only, origin-validates before sending, fails closed. Collision-checked against keybindings (`ctrl+alt+t` vs `ctrl+shift+t`/`ctrl]`), the footer extension, and pi-subagents.
+- **`pi_setup.md`** (repo root, new): reference for the pi setup's three layers — nix-managed config (`dots/pi/agent/`), imperative-converged runtime packages (`just pi-setup`), runtime-mutable state (`settings.json`/`auth.json`) — plus the package catalog and operating commands. Per decision, the package catalog lives here, not in specs; `specs/overview.md`'s pi bullet and README (bootstrap step 9 + package-table row) point to it.
+- Closes the predecessor adoption task's pending docs round (pi-subagents/pi-lens/cc-safety-net): its recipe was already in the Justfile and its extension edits already shipped.
+- Evaluated and skipped: `pi-delete-session` (brand-new, 0 dependents — hand `rm` of session files is trivial); vetting record in `specs/ctx.md`.
+
 ## 2026-09-21 — model per mode (modes extension)
 
 - **Deterministic mode→model binding** in `dots/pi/agent/extensions/modes/index.ts`: `MODEL_BINDINGS` (research/plan → `zai/glm-5.3`, implement → `zai/glm-5.3-flash`, thinking `high` everywhere) applied via `applyModelBinding()` on every `setMode()` and at `session_start` (fresh boot in implement → flash). Session-scoped `pi.setModel` — settings.json default for new sessions untouched. Lookup miss or auth failure → error notify, current model kept. Mode notification now suffixes the applied model; the one-line footer's model segment follows automatically (re-renders on `model_select`). Manual `/model` mid-mode holds until the next mode switch re-asserts.
