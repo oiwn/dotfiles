@@ -43,11 +43,12 @@
 
     taps = [
       "charmbracelet/tap"   # for crush
+      "anomalyco/tap"       # for opencode-v2
     ];
 
     # Fast-moving agents & tools not in nixpkgs
     brews = [
-      "opencode"
+      "anomalyco/tap/opencode-v2"  # v2 replaced the plain `opencode` formula — same binary name, they'd fight over the symlink
       "gemini-cli"
       "charmbracelet/tap/crush"
       "prek"
@@ -57,6 +58,7 @@
       "starship"
       "tabiew"
       "marksman"
+      "mosh"  # via brew, not nixpkgs: nix mosh bundles an openssh that rejects ~/.ssh/config UseKeychain; brew mosh uses PATH ssh (Apple)
     ];
 
     # GUI apps
@@ -106,7 +108,7 @@
   # =====================
   environment.systemPackages = [
     pkgs.coreutils
-    pkgs.mosh
     pkgs.nmap
+    # mosh deliberately NOT here — see brews list (nix build bundles a broken-for-UseKeychain ssh)
   ];
 }

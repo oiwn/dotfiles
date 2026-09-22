@@ -3,6 +3,14 @@ current_dir := `pwd`
 scan:
 	detect-secrets scan --use-all-plugins --all-files dots/ > .secrets.baseline
 
-# Stage everything except vars.nix (gitignored + intent-to-add; never track its content).
-stage:
-    git add -A -- . ':(exclude)vars.nix'
+# Converge pi runtime packages. Idempotent — safe to re-run (fresh-machine
+# path too); pi update remains the explicit refresh. cc-safety-net keeps
+# @latest per its own README (bare spec can hit a stale npx cache).
+pi-setup:
+	pi install npm:pi-mcp-adapter
+	pi install npm:pi-subagents
+	pi install npm:pi-lens
+	pi install npm:@narumitw/pi-usage
+	pi install npm:@juicesharp/rpiv-ask-user-question
+	pi install npm:@juicesharp/rpiv-todo
+	npx -y cc-safety-net@latest install

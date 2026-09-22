@@ -50,14 +50,14 @@ command above:
 | Homebrew brew/cask   | `hosts/macbook.nix` (`brews`/`casks`)   |
 | System default       | `hosts/macbook.nix` (`system.defaults`) |
 | Dotfile content      | `dots/<file>`                           |
-| Git identity/host    | `vars.nix` (gitignored, per-machine)    |
+| Git identity/host    | `vars.nix` (tracked, per-machine)       |
 
 Remove a package: delete the line, re-run switch.
 
 ## Gotchas
 
 - `flake.lock` is gitignored — fresh resolve per machine; no lock to commit.
-- `vars.nix` must be `git add -f --intent-to-add` for the flake to see it.
-- Never run bare `git add .` — it stages `vars.nix`'s content. Stage with `just stage` (i.e. `git add -A -- . ':(exclude)vars.nix'`).
+- New files under `dots/` must be git-visible before a switch (`git add -N <path>`): flake eval reads the repo through git, untracked files are invisible → home-manager installs dangling symlinks with no build error.
+- Staging is plain git (`git add -A`); `vars.nix` is tracked like everything else.
 - `git pull` needs `--rebase --autostash`.
 - `darwin-rebuild` requires sudo.

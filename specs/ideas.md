@@ -1,5 +1,24 @@
 # Ideas
 
+# Rust LSP extension for pi
+
+Deferred from the retired `specs/pi_setup.md` (never implemented). Candidate:
+`@narumitw/pi-lsp` — language-agnostic, JSON routes per file extension,
+diagnostics + code actions, starts servers only on tool calls. Setup:
+`pi install npm:@narumitw/pi-lsp`, then a `rust-analyzer` route
+(`include: ["**/*.rs"]`, `rootMarkers: ["Cargo.toml"]`). Alternatives:
+`pi-lsp` (declarative `~/.pi/agent/lsp.json`), `pi-lens`, `pi-lsp-lite`
+(diagnostics only). Design note: pi has no built-in LSP; the modes gates
+would need LSP navigation allowed in research/plan, fix/rename in implement.
+
+# Symposium (crate-matched skills)
+
+`cargo-agents` binary is installed (`~/.cargo/bin`, 2026-08) but never
+configured. Symposium adapts one skill config across agents; pi discovers
+the same `.agents/skills/` dirs other agents use — `cargo agents init`
+(pick an agent using `.agents/skills/`), then `cargo agents sync` per
+project (auto-sync on hooks is the default).
+
 # starship timeout
 
 ```

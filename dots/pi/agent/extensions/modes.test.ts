@@ -1,17 +1,19 @@
 /**
  * Unit tests for the modes extension's bash gate and specs path gate.
  *
- * Run from this directory:  node --test modes.test.ts
+ * Run from this directory:  node --test ../modes.test.ts
  *
- * This file lives in the repo only — home/dotfiles.nix symlinks modes.ts into
- * ~/.pi/agent/extensions/ but NOT this file, so pi never loads it. modes.ts
- * imports the pi SDK only as types (stripped at load), so these tests run
- * under plain node with no pi dependencies installed.
+ * This file lives in the repo only — home/dotfiles.nix symlinks modes/ and
+ * healthcheck/ into ~/.pi/agent/extensions/ but NOT this file, so pi never
+ * loads it. The extension imports the pi SDK only as types (stripped at
+ * load), so these tests run under plain node with no pi dependencies
+ * installed.
  */
 
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isReadOnlyCommand, isSpecsPath, maskShellQuoting } from "./modes.ts";
+import { isSpecsPath } from "./modes/index.ts";
+import { isReadOnlyCommand, maskShellQuoting } from "./modes/readonly.ts";
 
 // --- maskShellQuoting shape checks ----------------------------------------
 
@@ -110,6 +112,14 @@ const ALLOWED: string[] = [
 	"git ls-remote origin",
 	"node --version",
 	"date",
+	// specdev read-only subcommands
+	"specdev status",
+	"specdev scan",
+	"specdev list --stats",
+	"specdev --version",
+	"specdev -V",
+	"specdev --help",
+	"specdev status | head -5",
 ];
 
 for (const command of ALLOWED) {
@@ -172,6 +182,10 @@ const BLOCKED: string[] = [
 	"xargs rm",
 	"make",
 	"npm install",
+	// specdev mutating subcommands stay blocked
+	"specdev init",
+	"specdev skill install",
+	"specdev skill install --local",
 	// malformed
 	"echo 'unterminated",
 	'echo "unterminated',
