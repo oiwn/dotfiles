@@ -14,3 +14,8 @@ pi-setup:
 	pi install npm:@juicesharp/rpiv-ask-user-question
 	pi install npm:@juicesharp/rpiv-todo
 	npx -y cc-safety-net@latest install
+
+# Reclaim disk: drop nix system generations older than <window> (rollback window) + clear the whole brew download cache.
+gc window="14d":
+	nix-collect-garbage --delete-older-than {{window}}
+	brew cleanup --prune=all
