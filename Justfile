@@ -10,4 +10,7 @@ pi-setup:
 	pi install npm:pi-mcp-adapter
 	pi install npm:pi-subagents
 	pi install npm:pi-lens
+	pi install npm:@narumitw/pi-usage
+	pi install npm:@juicesharp/rpiv-ask-user-question
+	pi install npm:@juicesharp/rpiv-todo
 	npx -y cc-safety-net@latest install

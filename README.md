@@ -47,6 +47,9 @@ rustup component add rust-analyzer
 # 8. Make fish the login shell
 echo "$(which fish)" | sudo tee -a /etc/shells
 chsh -s "$(which fish)"
+
+# 9. Converge pi runtime packages (installs pi extensions via `pi install`)
+just pi-setup
 ```
 
 After step 6, `darwin-rebuild` is on PATH for subsequent switches (no `nix run` wrapper needed).
@@ -80,6 +83,7 @@ If your index is dirty, `git pull --rebase --autostash` (or set
 | Homebrew cask (GUI) | `hosts/macbook.nix` → `casks` | same |
 | System default (Dock, Finder, …) | `hosts/macbook.nix` → `system.defaults` | same |
 | Dotfile content | `dots/<file>` | same (symlinks repoint to nix store) |
+| pi runtime package | `Justfile` → `pi-setup` recipe (catalog in `pi_setup.md`) | `just pi-setup` (no switch) |
 | Git identity / hostname | `vars.nix` (per-machine) | same |
 
 Remove a package: delete the line, re-run switch.
