@@ -61,8 +61,8 @@
       "mosh"  # via brew, not nixpkgs: nix mosh bundles an openssh that rejects ~/.ssh/config UseKeychain; brew mosh uses PATH ssh (Apple)
     ];
 
-    # GUI apps
-    casks = [
+    # GUI apps — full shared list; a host drops entries via vars.caskExclude
+    casks = builtins.filter (c: !builtins.elem c vars.caskExclude) [
       "wezterm"
       "firefox@developer-edition"
       "zed"

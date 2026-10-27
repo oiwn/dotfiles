@@ -10,6 +10,16 @@ in
   home.file.".tmux.conf".source = "${dotsDir}/.tmux.conf";
 
   # =====================
+  # fish — ~/.config/fish/
+  # =====================
+  xdg.configFile."fish/functions/tmuxp-init.fish".source = "${dotsDir}/fish/functions/tmuxp-init.fish";
+
+  # =====================
+  # tmuxp — ~/.config/tmuxp/
+  # =====================
+  xdg.configFile."tmuxp/rust.yaml".source = "${dotsDir}/tmuxp/rust.yaml";
+
+  # =====================
   # helix — ~/.config/helix/
   # =====================
   xdg.configFile."helix/config.toml".source = "${dotsDir}/helix.toml";
@@ -19,7 +29,6 @@ in
   # neovim — ~/.config/nvim/
   # =====================
   xdg.configFile."nvim/init.lua".source = "${dotsDir}/init.lua";
-  xdg.configFile."nvim/init.vim".source = "${dotsDir}/init.vim";
 
   # =====================
   # editorconfig — ~/.editorconfig
