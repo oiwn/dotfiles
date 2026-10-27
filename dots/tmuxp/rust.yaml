@@ -1,0 +1,34 @@
+session_name: pick-a-name
+environment:
+  RUST_LOG: info
+  PROJECT_ENV: dev
+shell_command_before: "clear"
+windows:
+  - window_name: code
+    focus: true
+    start-directory: ./
+    panes:
+      - shell_command:
+        - hx
+  - window_name: agents
+    start-directory: ./
+    panes:
+      - shell_command:
+        - eza
+  - window_name: cmd1
+    start-directory: ./
+    panes:
+      - shell_command:
+        - eza
+  - window_name: cmd2
+    panes:
+      - shell_command:
+        - eza
+  - window_name: yazi
+    panes:
+      - shell_command:
+        - yazi
+  - window_name: cmd3
+    panes:
+      - shell_command:
+        - eza

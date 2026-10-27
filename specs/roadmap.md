@@ -12,30 +12,21 @@
 
   Required change in home/terminal.nix:
 
-  home.sessionPath = [
-    "/opt/homebrew/bin"
-    "/opt/homebrew/sbin"
-    "$HOME/.cargo/bin"
-    "$HOME/.local/bin"
-  ];
+  home.sessionPath = [ "/opt/homebrew/bin" "/opt/homebrew/sbin" "$HOME/.cargo/bin" "$HOME/.local/bin" ];
 
   And update the Fish initialization to:
 
-  shellInit = ''
-    fish_add_path --global --move /opt/homebrew/bin /opt/homebrew/sbin /Users/alexch/.local/bin
-  '';
+  shellInit = '' fish_add_path --global --move /opt/homebrew/bin /opt/homebrew/sbin /Users/alexch/.local/bin '';
 
   Prefer $HOME/.local/bin in home.sessionPath; Fish’s fish_add_path receives a concrete path so it persists correctly.
 
   Then rebuild from the dotfiles repo:
 
-  cd /Users/alexch/code/dotfiles
-  sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
+  cd /Users/alexch/code/dotfiles sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 
   Then verify:
 
-  type -a goose
-  goose --version
+  type -a goose goose --version
 
 ## Planned
 
