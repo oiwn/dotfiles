@@ -1,8 +1,0 @@
-add_pip_as_python_dependency: True
-create_default_packages:
-  - pip
-  - mypy
-  - ipython
-  - pylint
-  - flake8
-  - black

@@ -50,7 +50,7 @@ command above:
 | Homebrew brew/cask   | `hosts/macbook.nix` (`brews`/`casks`)   |
 | System default       | `hosts/macbook.nix` (`system.defaults`) |
 | Dotfile content      | `dots/<file>`                           |
-| Git identity/host    | `vars.nix` (tracked, per-machine)       |
+| Git identity/host    | `vars/<host>.nix` (tracked, per-machine) |
 
 Remove a package: delete the line, re-run switch.
 
@@ -58,6 +58,15 @@ Remove a package: delete the line, re-run switch.
 
 - `flake.lock` is gitignored — fresh resolve per machine; no lock to commit.
 - New files under `dots/` must be git-visible before a switch (`git add -N <path>`): flake eval reads the repo through git, untracked files are invisible → home-manager installs dangling symlinks with no build error.
-- Staging is plain git (`git add -A`); `vars.nix` is tracked like everything else.
+- Staging is plain git (`git add -A`); `vars/<host>.nix` files are tracked like everything else.
 - `git pull` needs `--rebase --autostash`.
 - `darwin-rebuild` requires sudo.
+
+<!-- BEGIN specdev -->
+## specdev
+
+This project uses **specdev** (specification-driven development). Load the
+specdev skill when starting a session, continuing from specs, or picking up a
+task. Always read `specs/overview.md` and `specs/ctx.md` before coding.
+<!-- END specdev -->
+
