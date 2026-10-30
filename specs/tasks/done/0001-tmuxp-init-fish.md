@@ -1,6 +1,6 @@
 ---
 id: 0001-tmuxp-init-fish
-status: approval
+status: done
 scope: [dots/tmuxp/rust.yaml, dots/fish/functions/tmuxp-init.fish, home/dotfiles.nix, .tmuxp.rust.yaml]
 created: 2026-10-27
 source: session 2026-10-27: fish command to bootstrap .tmuxp.yaml from the rust template (replace name, skip if present); also removes the dangling nvim/init.vim symlink left by the dots cleanup
@@ -30,7 +30,7 @@ Diff matches plan exactly: template moved byte-identical (git shows `R .tmuxp.ru
 
 ## Manual checks
 
-- [ ] After the user's switch, in a fresh fish: `type tmuxp-init` resolves; in a scratch dir it writes `./.tmuxp.yaml` with the dir name as session; a second run refuses
+- [x] After the user's switch, in a fresh fish: `type tmuxp-init` resolves; in a scratch dir it writes `./.tmuxp.yaml` with the dir name as session; a second run refuses — agent: verified post-switch on the live install — `fish -c 'type tmuxp-init'` resolves; scratch-dir run wrote `session_name: my-proj`; second run refused with exit 1
 
 ## Context
 
@@ -54,3 +54,5 @@ Diff matches plan exactly: template moved byte-identical (git shows `R .tmuxp.ru
 - 2026-10-27 advance in-progress/implement → in-progress/verify
 - 2026-10-27 advance in-progress/verify → in-progress/review
 - 2026-10-27 advance in-progress/review → approval
+- 2026-10-28 approved: ok close it, i just did darwin-rebuild and it works
+- 2026-10-28 advance approval → done

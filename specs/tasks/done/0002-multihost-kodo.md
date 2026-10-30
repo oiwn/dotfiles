@@ -1,6 +1,6 @@
 ---
 id: 0002-multihost-kodo
-status: approval
+status: done
 scope: [flake.nix, vars/, vars.nix, vars.nix.example, hosts/macbook.nix, AGENTS.md]
 created: 2026-10-27
 source: session 2026-10-27: run the same stack on second MacBook 'kodo' (alexch, Apple Silicon) — per-host vars, genAttrs flake, lighter cask set (drops: blender, gimp, krita, reaper, obs, bambu-studio, surge-xt, docker-desktop)
@@ -26,7 +26,7 @@ source: session 2026-10-27: run the same stack on second MacBook 'kodo' (alexch,
 
 ## Manual checks
 
-- [ ] On kodo: fresh clone, then `sudo darwin-rebuild switch --flake .#kodo` completes — user: "…" (waivable if kodo isn't at hand this session)
+- [x] On kodo: fresh clone, then `sudo darwin-rebuild switch --flake .#kodo` completes — user: "Done on kodo"
 
 ## Summary
 
@@ -61,3 +61,5 @@ Diff matches plan: two per-host vars files (kodo = bakodo + `caskExclude` of the
 - 2026-10-27 advance in-progress/implement → in-progress/verify
 - 2026-10-27 advance in-progress/verify → in-progress/review
 - 2026-10-27 advance in-progress/review → approval
+- 2026-10-28 approved: ok close it, i just did darwin-rebuild and it works; kodo check: done on kodo
+- 2026-10-28 advance approval → done

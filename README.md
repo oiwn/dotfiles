@@ -138,7 +138,7 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Terminal**: WezTerm (Warp removed).
 - **Multiplexer**: tmux primary; zellij via brew (nixpkgs dropped zellij; brew tracks releases).
 - **mosh via brew, not nixpkgs**: the nix mosh bundle ships its own OpenSSH, which rejects `UseKeychain` from `~/.ssh/config`; brew mosh invokes `ssh` from PATH (Apple's `/usr/bin/ssh`), which parses the config fine.
-- **Fast-moving CLIs** (`opencode-v2` from `anomalyco/tap` — replaced the plain `opencode` formula, same binary name, `gemini-cli`, `crush`, `prek`): Homebrew brews for daily freshness; `claude-code` and `codex` are casks (that's how Homebrew ships them).
+- **Fast-moving CLIs** (`opencode-v2` from `anomalyco/tap` — replaced the plain `opencode` formula, same binary name, `crush`, `prek`, `rclone`, `zola`): Homebrew brews for daily freshness; slow movers (`age`, `sops`) are nix packages. `claude-code` and `codex` are casks (that's how Homebrew ships them).
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper left enabled.
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
 - **`homebrew.onActivation.upgrade = false`**: switches install only *missing* brews/casks — no multi-GB cask re-downloads on every `switch`. Update packages explicitly with `brew upgrade`.
