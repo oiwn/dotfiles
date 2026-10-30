@@ -44,12 +44,13 @@
     taps = [
       "charmbracelet/tap"   # for crush
       "anomalyco/tap"       # for opencode-v2
+      "nklmilojevic/sofka"  # for sofka
+      "rustfs/tap"          # for rc
     ];
 
     # Fast-moving agents & tools not in nixpkgs
     brews = [
       "anomalyco/tap/opencode-v2"  # v2 replaced the plain `opencode` formula — same binary name, they'd fight over the symlink
-      "gemini-cli"
       "charmbracelet/tap/crush"
       "prek"
       "tmuxp"
@@ -59,6 +60,12 @@
       "tabiew"
       "marksman"
       "mosh"  # via brew, not nixpkgs: nix mosh bundles an openssh that rejects ~/.ssh/config UseKeychain; brew mosh uses PATH ssh (Apple)
+      "rclone"   # fast-moving (backends) — brew freshness; nixpkgs pin lags
+      "zola"     # fast-moving — brew freshness
+      "herdr"
+      "libomp"   # OpenMP runtime for local ML builds (llama.cpp/whisper.cpp/ComfyUI nodes)
+      "nklmilojevic/sofka/sofka"
+      "rustfs/tap/rc"
     ];
 
     # GUI apps — full shared list; a host drops entries via vars.caskExclude
@@ -85,6 +92,14 @@
       "codex"
       "sage"
       "surge-xt"
+
+      # bakodo-only apps (kodo excludes via vars/kodo.nix caskExclude)
+      "comfy"
+      "headlamp"
+      "openvpn-connect"
+      "raspberry-pi-imager"
+      "ungoogled-chromium"
+      "yandex"
 
       # Fonts
       "font-hack-nerd-font"

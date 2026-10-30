@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-28 — multihost kodo
+
+- Flake builds a darwinConfiguration per host from `vars/<host>.nix` (bakodo + kodo); kodo skips 8 casks via `caskExclude`; single vars.nix retired, docs updated.
+- Task `0002-multihost-kodo`; source: session 2026-10-27: run the same stack on second MacBook 'kodo' (alexch, Apple Silicon) — per-host vars, genAttrs flake, lighter cask set (drops: blender, gimp, krita, reaper, obs, bambu-studio, surge-xt, docker-desktop)
+
+## 2026-10-28 — tmuxp init fish
+
+- Fish `tmuxp-init` bootstraps a project's `./.tmuxp.yaml` from `dots/tmuxp/rust.yaml`; template moved under dots, both symlinked by home-manager, dangling `nvim/init.vim` link removed.
+- Task `0001-tmuxp-init-fish`; source: session 2026-10-27: fish command to bootstrap .tmuxp.yaml from the rust template (replace name, skip if present); also removes the dangling nvim/init.vim symlink left by the dots cleanup
+
 ## 2026-09-21 — disk-reclaim `gc` recipe
 
 - **`just gc [window=14d]`**: `nix-collect-garbage --delete-older-than <window>` + `brew cleanup --prune=all` — reclaims old nix system generations and the brew download cache; keeps `<window>` of rollback (`gc 0d` ≈ `nix-collect-garbage -d`, no rollback). README "Daily updates" gains a "Reclaim disk" subsection (gc, custom window, `--dry-run` preview, max-reclaim tradeoff).
