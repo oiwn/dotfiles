@@ -27,6 +27,13 @@
         /opt/homebrew/bin/brew shellenv | source
       end
 
+      # rmux tmux-shim — shadow `tmux` with rmux during the tmux→rmux trial.
+      # MUST run after brew shellenv: /opt/homebrew/bin/tmux (brew tmux 3.8,
+      # a tmuxp-formula dependency) would otherwise win the PATH race.
+      # Real tmux stays reachable by full path (/opt/homebrew/bin/tmux,
+      # /etc/profiles/per-user/$USER/bin/tmux).
+      fish_add_path --global --move --prepend $HOME/.config/rmux/shim
+
       if test (uname) = Darwin; and test -x /usr/bin/xcrun
         set -gx SDKROOT (/usr/bin/xcrun --show-sdk-path)
         set -gx CC /usr/bin/cc
