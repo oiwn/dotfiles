@@ -24,6 +24,7 @@ in
   # fish — ~/.config/fish/
   # =====================
   xdg.configFile."fish/functions/tmuxp-init.fish".source = "${dotsDir}/fish/functions/tmuxp-init.fish";
+  xdg.configFile."fish/functions/rmuxp.fish".source = "${dotsDir}/fish/functions/rmuxp.fish";
 
   # =====================
   # tmuxp — ~/.config/tmuxp/
