@@ -16,6 +16,7 @@
 dotfiles/
   flake.nix           # inputs + genAttrs over hosts [ "bakodo" "kodo" ]; each imports
                       # vars/<host>.nix and threads it via specialArgs / extraSpecialArgs
+  Cargo.toml          # Rust workspace (virtual) — target/ + Cargo.lock at root
   vars.nix.example    # committed template (placeholder fields)
   vars/
     bakodo.nix        # committed, per machine (hostName, systemUser, platform, git id, caskExclude)
@@ -32,10 +33,12 @@ dotfiles/
     dev.nix           # programs.git (vars.gitName/gitEmail), programs.gh, programs.gpg
     apps.nix          # placeholder; brews/casks declared in hosts/macbook.nix
   dots/               # raw dotfiles, source of truth, symlinked by home-manager
-    .tmux.conf, helix.toml, languages.toml, init.lua, .editorconfig, hammerspoon.lua,
-    wezterm.lua, tmuxp/rust.yaml, fish/functions/tmuxp-init.fish
+    rmux.conf, helix.toml, languages.toml, init.lua, .editorconfig, hammerspoon.lua,
+    wezterm.lua, dotfiles/ws.ron
     pi/agent/         # extensions/modes/{index,readonly}.ts, extensions/healthcheck/index.ts,
                       # keybindings.json, mcp.json (z.ai MCP tools)
+  tools/
+    dotfiles/         # personal `dotfiles` cargo bin (ws load/init via rmux-sdk)
 ```
 
 ## Data flow
@@ -75,7 +78,8 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Shell**: fish + starship. zsh + oh-my-zsh + p10k removed.
 - **Python**: uv (via Nix). conda/miniforge removed.
 - **Terminal**: WezTerm (cask), config symlinked from `dots/wezterm.lua`.
-- **Multiplexer**: tmux primary; zellij via brew (nixpkgs dropped zellij entirely; brew tracks releases — `brew upgrade zellij` for freshness).
+- **Multiplexer**: rmux via brew (tmux retired 2026-11-20 — declared in `hosts/macbook.nix`); zellij via brew (nixpkgs dropped zellij entirely; brew tracks releases — `brew upgrade zellij` for freshness). Workspaces load via the personal `dotfiles` CLI.
+- **`dotfiles` CLI** (member of the root virtual Cargo workspace; installed via `just install-tool`): `ws load` / `ws init` manage rmux sessions from per-project `.ws.ron` files — flattened RON schema, template in `dots/dotfiles/ws.ron`. Speaks **rmux-sdk** daemon IPC (version must match the brew rmux daemon), never the tmux shim; the final attach is `exec rmux attach -t` (inherited TTY, no pipes). Listing/killing/diagnostics stay with rmux itself. Replaces tmuxp + the fish wrappers.
 - **Fast-moving CLIs** as Homebrew brews for daily freshness: `anomalyco/tap/opencode-v2` (moved off the plain `opencode` formula 2026-09-20 — same binary name, the two formulas fight over `/opt/homebrew/bin/opencode`), `prek`, `charmbracelet/tap/crush`, `rclone`, `zola` (2026-10-29: pinned nixpkgs lags brew — rclone 1.75.0 vs 1.75.2, zola 0.22.1 vs 0.23.6). Slow movers go to nix instead (`age`, `sops`). Third-party taps: `nklmilojevic/sofka` (sofka), `rustfs/tap` (rc); `herdr` and `libomp` (OpenMP for local ML builds) also brew. Anthropic and OpenAI ship their CLIs as Homebrew **casks**: `claude-code`, `codex`.
 - **mosh via Homebrew, not nixpkgs** (hit 2026-09-20): the nix mosh bundle ships its own OpenSSH build that rejects `UseKeychain` from `~/.ssh/config` (and doesn't even honor `IgnoreUnknown`); brew mosh invokes `ssh` from PATH — Apple's `/usr/bin/ssh`, which parses the config fine. Keep it in `hosts/macbook.nix` `brews`, not `environment.systemPackages`. Fallback if ssh resolution ever goes odd again: `mosh --ssh=/usr/bin/ssh <host>`.
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper kept on (no `no_quarantine`).
@@ -92,5 +96,5 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **New files must be git-visible before a switch**: flake eval reads the repo through git — tracked files (worktree content) plus intent-to-add entries; plain untracked files are invisible. Symptom: home-manager installs **dangling symlinks** with no build error (hit with untracked `dots/pi/` — extension/keybindings silently never appeared in `~/.pi/agent`). Fix: `git add -N <path>` before `darwin-rebuild switch`; sanity-check with `nix eval --no-warn-dirty --raw '.#<host>.config.home-manager.users.<user>.home.file."<path>".source'` and `test -f` the printed store path.
 - **Hostname binding**: `flake.nix` builds one `darwinConfiguration` per entry in `hosts = [ "bakodo" "kodo" ]`, each importing `vars/<host>.nix`. A new machine: copy `vars.nix.example` → `vars/<LocalHostName>.nix`, fill it in, add the name to the `hosts` list. Bootstrap on the machine itself (needs Lix + the repo): `sudo darwin-rebuild switch --flake .#<host>` — the `flake.lock` is gitignored, so each machine resolves its own. Note: the apply command with `.#$(scutil --get LocalHostName)` picks the right config automatically per machine.
 - **z.ai API surface** (hit 2026-09-20): GLM Coding Plan credits cover only the **MCP** endpoints — `api.z.ai/api/mcp/{web_search_prime,web_reader}/mcp`. The REST tools (`/api/paas/v4/*`, even under the coding base `/api/coding/paas/v4/*`) are open-platform pay-per-use → plan keys get 1113/429 there. Docs names can lie: tool is `web_search_prime`, not `webSearchPrime`; schemas are strict (`additionalProperties: false` — no `count` param). **Don't infer endpoint URLs from sibling services**: a wrong-but-existing endpoint (`/mcp/web_search/mcp` — legacy, initializes fine) hides the mistake until the first billable call. Verify new MCP wiring with one real `tools/call` before declaring done.
-- **tmux config changes need a live-server nudge**: a running tmux server predating a conf change keeps the old options — `tmux source-file ~/.tmux.conf` (or a full server restart) after edits; verify italics in a *fresh* pane with `printf 'normal \e[3mitalic\e[23m normal\n'`. Panes must get `TERM=tmux-256color` (has `sitm`/`ritm`); `dots/.tmux.conf` sets `default-terminal "tmux-256color"` plus `terminal-overrides` for RGB and sitm/ritm. (Routed here from the retired `specs/pi_setup.md`.)
+- **rmux config changes need a live-daemon nudge**: a running rmux daemon predating a conf change keeps the old options — `rmux source-file ~/.config/rmux/rmux.conf` (or a daemon restart) after edits; verify italics in a *fresh* pane with `printf 'normal \e[3mitalic\e[23m normal\n'`. Panes must get `TERM=tmux-256color` (has `sitm`/`ritm`); `dots/rmux.conf` sets `default-terminal "tmux-256color"` plus `terminal-overrides` for RGB and sitm/ritm. (Routed here from the retired `specs/pi_setup.md`; tmux→rmux 2026-11-20.)
 - **pi default footer stats decoded** (2026-09-21, for the one-line `/footer` extension): `↑`/`↓` = cumulative input/output tokens; `R`/`W` = cache **read/write** tokens (not reasoning); `CH%` = latest-request cache-hit rate = `cacheRead/(input + cacheRead + cacheWrite)`; `$` = session cost; `pct%/window` = context usage via `getContextUsage()` (compaction-aware, null right after compaction); `(auto)` = auto-compaction mode. Context % colorized >70% warning / >90% error.

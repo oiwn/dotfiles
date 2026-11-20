@@ -15,6 +15,10 @@ pi-setup:
 	pi install npm:@juicesharp/rpiv-todo
 	npx -y cc-safety-net@latest install
 
+# Install/refresh the personal `dotfiles` CLI (tools/dotfiles) into ~/.cargo/bin.
+install-tool:
+	cargo install --path tools/dotfiles
+
 # Reclaim disk: drop nix system generations older than <window> (rollback window) + clear the whole brew download cache.
 gc window="14d":
 	nix-collect-garbage --delete-older-than {{window}}

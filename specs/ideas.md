@@ -30,10 +30,6 @@ Deferred from the retired `specs/pi_setup.md` (never implemented). Candidate: `@
 
 - currently pinned at `7`; bump only after reading `darwin-rebuild changelog`.
 
-# Tiny native tmuxp loader (not Python)
-
-Replace tmuxp for this repo's `.tmuxp.yaml` subset: session_name, environment, shell_command_before, windows (name/focus/start-directory), panes[].shell_command (str|list); existing session → just attach. A ~100-line Python POC (2026-11-15, rolled back — uv/PyYAML startup + "no python" preference) proved the command mapping with full parity vs tmuxp. Non-Python candidates: fish + mikefarang yq (one `home.packages` entry; nested pane-list quoting is the pain point), or a small Rust bin. Verified rmux 0.10.0 primitives: repeated `new-session -e K=V` works; `send-keys -t sess:win cmd Enter` works; panes need ~0.4s settle before send-keys; `set-environment` takes space-separated args (not `K=V`); always attach with explicit `-t`; session env inherits the creating client's env (scrub launcher vars).
-
 # implement-mode approve-edits (Claude Code style)
 
 Deferred until real Pi usage shows it's needed. Decided so far:

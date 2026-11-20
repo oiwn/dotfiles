@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-20 — dotfiles CLI — rmux workspace loader
+
+- Unit 1: tools/dotfiles crate + ws load via rmux-sdk (flattened RON schema, windows/panes/env/focus e2e-verified, idempotent, parse tests, fmt/test/clippy/prek green)
+- Unit 2: ws init (scaffold from managed dots/dotfiles/ws.ron template, placeholder substitutes session/env-key/herdr, all paths e2e-verified) + xdg.configFile symlink, just install-tool
+- Unit 3 (agent side): tmux/tmuxp/shim retired from config — rmux declared in brews, dots/rmux.conf renamed, fish wrappers + tmuxp dots deleted, specs/README updated, repo dogfoods .ws.ron; user apply steps pending
+- Rebuild after filter-repo incident (staged-not-committed batch lost to the hard reset): crate + template + configs + specs regenerated from session; new default template (spec/agents/code/cmd1/cmd2/yazi); acceptance green from root; full e2e re-verified
+- Track `dotfiles-cli`
+
 ## 2026-10-28 — multihost kodo
 
 - Flake builds a darwinConfiguration per host from `vars/<host>.nix` (bakodo + kodo); kodo skips 8 casks via `caskExclude`; single vars.nix retired, docs updated.

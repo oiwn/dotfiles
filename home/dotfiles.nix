@@ -1,35 +1,23 @@
-{ pkgs, ... }:
+{ ... }:
 
 let
   dotsDir = ../dots;
 in
 {
   # =====================
-  # tmux — ~/.tmux.conf
-  # =====================
-  home.file.".tmux.conf".source = "${dotsDir}/.tmux.conf";
-
-  # =====================
-  # rmux — ~/.config/rmux/  (tmux replacement trial, brew rmux 0.10.0)
-  # rmux.conf is the SAME source as ~/.tmux.conf — every directive verified
+  # rmux — ~/.config/rmux/rmux.conf (brew rmux)
+  # Formerly .tmux.conf (tmux retired 2026-11-20): every directive verified
   # supported on rmux 0.10.0 (incl. extended-keys csi-u, terminal-overrides
-  # RGB/sitm, set-clipboard OSC52). shim/tmux is the official tmux drop-in:
-  # argv[0]=tmux makes the rmux binary masquerade as "tmux 3.4" so
-  # tmuxp/libtmux drive it unchanged (end-to-end tested 2026-11-15).
+  # RGB/sitm, set-clipboard OSC52). Sessions load via `dotfiles ws load`
+  # (tools/dotfiles cargo bin, rmux-sdk daemon IPC).
   # =====================
-  xdg.configFile."rmux/rmux.conf".source = "${dotsDir}/.tmux.conf";
-  xdg.configFile."rmux/shim/tmux".source = pkgs.runCommand "rmux-tmux-shim" { } "ln -s /opt/homebrew/bin/rmux $out";
+  xdg.configFile."rmux/rmux.conf".source = "${dotsDir}/rmux.conf";
 
   # =====================
-  # fish — ~/.config/fish/
+  # dotfiles CLI — ~/.config/dotfiles/
+  # Template for `dotfiles ws init` (tools/dotfiles cargo bin).
   # =====================
-  xdg.configFile."fish/functions/tmuxp-init.fish".source = "${dotsDir}/fish/functions/tmuxp-init.fish";
-  xdg.configFile."fish/functions/rmuxp.fish".source = "${dotsDir}/fish/functions/rmuxp.fish";
-
-  # =====================
-  # tmuxp — ~/.config/tmuxp/
-  # =====================
-  xdg.configFile."tmuxp/rust.yaml".source = "${dotsDir}/tmuxp/rust.yaml";
+  xdg.configFile."dotfiles/ws.ron".source = "${dotsDir}/dotfiles/ws.ron";
 
   # =====================
   # helix — ~/.config/helix/

@@ -53,7 +53,7 @@
       "anomalyco/tap/opencode-v2"  # v2 replaced the plain `opencode` formula — same binary name, they'd fight over the symlink
       "charmbracelet/tap/crush"
       "prek"
-      "tmuxp"
+      "rmux"  # terminal multiplexer (tmux retired 2026-11-20); sessions via `dotfiles ws load` — rmux-sdk version must match (tools/dotfiles)
       "zellij"
       "ripgrep"
       "starship"
