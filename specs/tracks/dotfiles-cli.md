@@ -19,7 +19,7 @@ A personal `dotfiles` cargo bin in this repo (`tools/dotfiles/`) that replaces t
 - **Tool named `dotfiles`** — personal, not for distribution; session commands namespaced under `ws` so the root namespace stays free for future workflow commands.
 - **Flattened RON schema** — `session`, `environment` (map), `before`, one-line windows (`name`/`focus`/`dir`/`commands`), optional `panes` as the multi-pane escape hatch. A verbatim tmuxp-schema RON translation (`panes:` → `shell_command:` nesting) was reviewed and rejected as noisy; TOML and YAML were compared and declined — YAML kept zero-migration appeal but RON's flattened one-line windows won on compactness.
 - **No `.tmuxp.yaml` fallback** — the tool reads only `.ws.ron`; legacy project files get a one-shot conversion when touched. Moving to rmux + new session-creation methods wholesale.
-- **Default template** (`dots/dotfiles/ws.ron`): windows `spec` (`specdev tui`, focused), `agents` (`herdr --session <name>`, no stop command), `code` (`hx`), `cmd1`, `cmd2`, `yazi` 6th; env `RUST_LOG` + `<session>_ENV`; the `pick-a-name` placeholder substitutes into the session field, the env key, and the herdr command in one pass.
+- **Default template** (`dots/dotfiles/ws.ron`): windows `spec` (`specdev tui`, focused), `agents` (`herdr --session <name>`, no stop command), `code` (`hx`), `cmd1`, `cmd2`, `yazi` 6th; env `RUST_LOG` + `<SESSION>_ENV`; the `pick-a-name` placeholder substitutes into the session field, the herdr command, and the env key in one pass. The derived env key is uppercased and dash-sanitized (`oiwn-dotfiles` → `OIWN_DOTFILES_ENV`) — fish rejects dashes in variable names.
 - **`rmux-sdk` daemon IPC, not tmux-shim shelling** — the tool speaks native rmux; `rmux-sdk = "0.10.0"` must match the brew daemon version.
 - **Two commands only: `ws load` + `ws init`.** No ls/kill/doctor/convert/save/pickers — rmux already provides listing, diagnostics, killing; we don't duplicate rmux.
 - **Attach via `exec rmux attach -t <session>`** as the final step — inherited TTY, no pipes, so the tmuxp hang is structurally impossible.
@@ -69,9 +69,11 @@ Unit-specific:
 - **Focus selection verified deterministic**; one transient on the very first cold-boot of the TUI apps never reproduced — likely a daemon-side cold-start race, not the tool's flow.
 - **filter-repo incident (2026-11-20)**: the batch was staged (`git add --all`) but not committed when `git filter-repo` ran — its hard reset to the rewritten HEAD discarded all staged work; ignored files survived. Fully rebuilt from the session. Lesson: history surgery only on a committed tree; stage ≠ commit.
 - The renamed `dots/rmux.conf` carried a pre-existing misspelling of "aggressive" — prek/typos caught it on the rename; fixed.
+- **`<session>_ENV` keys must be sanitized** (hit 2026-11-20): a session name with a dash (`oiwn-dotfiles`) produces an invalid fish/bash variable name, and every pane's fish startup spams `set: invalid variable name` through nix-darwin's foreign-env plugin. `ws init` now uppercases and dash-sanitizes the derived key; the workspaces env map otherwise passes through verbatim.
 
 ## Checkpoints
 
+- 2026-11-20 — Env-key sanitization: <session>_ENV renders uppercased/dash-free (fish rejects dashes in var names — every pane's fenv startup errored); README gains the install-tool bootstrap step; 7 tests, e2e re-verified with clean fish startup
 - 2026-11-20 — Rebuild after filter-repo incident (staged-not-committed batch lost to the hard reset): crate + template + configs + specs regenerated from session; new default template (spec/agents/code/cmd1/cmd2/yazi); acceptance green from root; full e2e re-verified
 - 2026-11-20 — Unit 3 (agent side): tmux/tmuxp/shim retired from config — rmux declared in brews, dots/rmux.conf renamed, fish wrappers + tmuxp dots deleted, specs/README updated, repo dogfoods .ws.ron; user apply steps pending
 - 2026-11-20 — Unit 2: ws init (scaffold from managed dots/dotfiles/ws.ron template, placeholder substitutes session/env-key/herdr, all paths e2e-verified) + xdg.configFile symlink, just install-tool

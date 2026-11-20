@@ -44,11 +44,15 @@ sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 rustup default stable
 rustup component add rust-analyzer
 
-# 8. Make fish the login shell
+# 8. Install the personal `dotfiles` CLI (rmux workspace loader, tools/dotfiles).
+#    Also refresh it after editing the crate.
+just install-tool
+
+# 9. Make fish the login shell
 echo "$(which fish)" | sudo tee -a /etc/shells
 chsh -s "$(which fish)"
 
-# 9. Converge pi runtime packages (installs pi extensions via `pi install`)
+# 10. Converge pi runtime packages (installs pi extensions via `pi install`)
 just pi-setup
 ```
 

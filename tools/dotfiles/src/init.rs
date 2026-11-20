@@ -48,7 +48,26 @@ fn current_dir_name() -> Result<String, Box<dyn Error>> {
 }
 
 fn render(template: &str, session_name: &str) -> String {
-    template.replace(PLACEHOLDER, session_name)
+    // The derived env key must be a valid shell variable name — fish (like
+    // bash) rejects dashes: `oiwn-dotfiles_ENV` breaks every pane's fish
+    // startup via foreign-env `set -gx`. So `pick-a-name_ENV` renders as
+    // the uppercased, dash-sanitized `<SESSION>_ENV` (theorb -> THEORB_ENV).
+    let env_key = env_key_for(session_name);
+    template
+        .replace(&format!("{PLACEHOLDER}_ENV"), &env_key)
+        .replace(PLACEHOLDER, session_name)
+}
+
+fn env_key_for(session_name: &str) -> String {
+    let sanitized: String = session_name
+        .chars()
+        .map(|c| match c {
+            'a'..='z' => c.to_ascii_uppercase(),
+            'A'..='Z' | '0'..='9' | '_' => c,
+            _ => '_',
+        })
+        .collect();
+    format!("{sanitized}_ENV")
 }
 
 #[cfg(test)]
@@ -60,9 +79,20 @@ mod tests {
         let template = r#"(session: "pick-a-name", environment: {"pick-a-name_ENV": "dev"}, windows: [(name: "a", commands: ["herdr --session pick-a-name"])])"#;
         let rendered = render(template, "myproject");
         assert!(rendered.contains(r#"session: "myproject""#));
-        assert!(rendered.contains(r#""myproject_ENV": "dev""#));
+        assert!(rendered.contains(r#""MYPROJECT_ENV": "dev""#));
         assert!(rendered.contains(r#"herdr --session myproject"#));
         assert!(!rendered.contains(PLACEHOLDER));
+    }
+
+    #[test]
+    fn render_sanitizes_env_key() {
+        // Dashes (and anything else shell-hostile) become underscores, uppercased.
+        let template =
+            r#"(session: "pick-a-name", environment: {"pick-a-name_ENV": "dev"}, windows: [])"#;
+        let rendered = render(template, "oiwn-dotfiles");
+        assert!(rendered.contains(r#""OIWN_DOTFILES_ENV": "dev""#));
+        assert!(rendered.contains(r#"session: "oiwn-dotfiles""#));
+        assert!(!rendered.contains("oiwn-dotfiles_ENV"));
     }
 
     #[test]

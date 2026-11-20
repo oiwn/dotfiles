@@ -6,6 +6,7 @@
 - Unit 2: ws init (scaffold from managed dots/dotfiles/ws.ron template, placeholder substitutes session/env-key/herdr, all paths e2e-verified) + xdg.configFile symlink, just install-tool
 - Unit 3 (agent side): tmux/tmuxp/shim retired from config — rmux declared in brews, dots/rmux.conf renamed, fish wrappers + tmuxp dots deleted, specs/README updated, repo dogfoods .ws.ron; user apply steps pending
 - Rebuild after filter-repo incident (staged-not-committed batch lost to the hard reset): crate + template + configs + specs regenerated from session; new default template (spec/agents/code/cmd1/cmd2/yazi); acceptance green from root; full e2e re-verified
+- Env-key sanitization: <session>_ENV renders uppercased/dash-free (fish rejects dashes in var names — every pane's fenv startup errored); README gains the install-tool bootstrap step; 7 tests, e2e re-verified with clean fish startup
 - Track `dotfiles-cli`
 
 ## 2026-10-28 — multihost kodo
