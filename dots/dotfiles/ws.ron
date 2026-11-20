@@ -1,0 +1,18 @@
+// dotfiles ws init template — .ws.ron scaffold
+// (the session placeholder is replaced with the project dir name or an argument)
+(
+    session: "pick-a-name",
+    environment: {
+        "RUST_LOG": "info",
+        "pick-a-name_ENV": "dev",
+    },
+    before: "clear",
+    windows: [
+        (name: "spec", focus: true, dir: "./", commands: ["specdev tui"]),
+        (name: "agents", dir: "./", commands: ["herdr --session pick-a-name"]),
+        (name: "code", dir: "./", commands: ["hx"]),
+        (name: "cmd1", dir: "./", commands: ["clear"]),
+        (name: "cmd2", commands: ["eza -l"]),
+        (name: "yazi", commands: ["yazi"]),
+    ],
+)

@@ -1,0 +1,11 @@
+[package]
+name = "dotfiles"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.6.9", features = ["derive"] }
+rmux-sdk = "0.10.0"
+ron = "0.12.3"
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros"] }

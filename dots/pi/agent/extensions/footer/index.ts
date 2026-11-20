@@ -1,0 +1,193 @@
+/**
+ * /footer — one-line status footer.
+ *
+ *   ~/code/dotfiles · 🔍 research · ↑1.4M ↓108k · 17.2%/1.0M · 172k · glm-5.3
+ *
+ * Left block: abbreviated cwd, mode (fixed-width slot right after cwd — mode
+ * switches never move the segments after it), cumulative in/out tokens,
+ * context usage with pi's >70%/>90% colorization. Right block: absolute
+ * context tokens, model id. A spacer line after the status keeps it from
+ * pressing against the editor.
+ *
+ * Data sources (all public extension API — verified in pi's
+ * core/extensions/types.d.ts):
+ * - tokens: ctx.sessionManager.getEntries() — assistant message usage PLUS
+ *   branch_summary/compaction usage blocks, so counts survive compaction
+ *   (a getBranch()-only sum resets at every compaction)
+ * - context: ctx.getContextUsage() — compaction-aware; percent/tokens are
+ *   null right after a compaction until the next LLM response (rendered as
+ *   "?/window" and "?" respectively, like pi)
+ * - model: ctx.model; cwd: ctx.cwd; mode: extension statuses ("modes")
+ *
+ * Dropped from the default footer: R/W cache tokens, CH% hit rate, $ cost,
+ * (auto) compaction tag. formatTokens/formatCwd reimplemented locally —
+ * pi's footer module is internal, not extension API.
+ *
+ * The model segment carries the LIVE thinking level (glm-5.3·h) read via
+ * pi.getThinkingLevel() — so ctrl+alt+t cycling mid-mode is visible, and a
+ * mode switch visibly re-asserts the binding. /footer toggles custom ↔
+ * default (default: on, installed at session_start). Stays live via
+ * footerData.onBranchChange + requestRender on model_select,
+ * thinking_level_select, and agent_end.
+ */
+
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { homedir } from "node:os";
+
+/** pi's compact token format (k/M), mirroring the default footer's display. */
+function formatTokens(count: number): string {
+	if (count < 1000) return `${count}`;
+	if (count < 10000) return `${(count / 1000).toFixed(1)}k`;
+	if (count < 1000000) return `${Math.round(count / 1000)}k`;
+	if (count < 10000000) return `${(count / 1000000).toFixed(1)}M`;
+	return `${Math.round(count / 1000000)}M`;
+}
+
+function formatCwd(cwd: string): string {
+	const home = homedir();
+	if (home && cwd === home) return "~";
+	if (home && cwd.startsWith(`${home}/`)) return `~${cwd.slice(home.length)}`;
+	return cwd;
+}
+
+interface TokenUsage {
+	input?: number;
+	output?: number;
+}
+
+/** Cumulative in/out over ALL session entries, compaction blocks included. */
+function cumulativeTokens(entries: readonly unknown[]): { input: number; output: number } {
+	let input = 0;
+	let output = 0;
+	for (const raw of entries) {
+		const e = raw as { type?: string; message?: { role?: string; usage?: TokenUsage }; usage?: TokenUsage };
+		if (e.type === "branch_summary" || e.type === "compaction") {
+			if (e.usage) {
+				input += e.usage.input ?? 0;
+				output += e.usage.output ?? 0;
+			}
+		} else if (e.type === "message" && e.message?.role === "assistant") {
+			const u = e.message.usage;
+			if (u) {
+				input += u.input ?? 0;
+				output += u.output ?? 0;
+			}
+		}
+	}
+	return { input, output };
+}
+
+// Widest mode status defines the slot width — mode switches change only the
+// slot's content, never the position of the segments after it. Emoji render
+// width-2, hence visibleWidth rather than string length.
+const MODE_SLOT_WIDTH = Math.max(
+	...["🔍 research", "🧭 plan", "⚙ implement"].map((s) => visibleWidth(s)),
+);
+
+/** Compact thinking-level letter for the model segment.
+ * ThinkingLevel = off | minimal | low | medium | high | xhigh | max. */
+const LEVEL_SHORT: Record<string, string> = {
+	off: "off",
+	minimal: "min",
+	low: "l",
+	medium: "m",
+	high: "h",
+	xhigh: "xh",
+	max: "max",
+};
+
+function shortLevel(level: string | undefined): string {
+	if (!level) return "";
+	const short = LEVEL_SHORT[level];
+	return short ? `·${short}` : `·${level}`;
+}
+
+export default function footerExtension(pi: ExtensionAPI): void {
+	let enabled = false;
+	let ctxRef: ExtensionContext | undefined;
+	let tuiRef: { requestRender(): void } | null = null;
+
+	function install(): void {
+		const ctx = ctxRef;
+		if (!ctx) return;
+		ctx.ui.setFooter((tui, theme, footerData) => {
+			tuiRef = tui;
+			const unsub = footerData.onBranchChange(() => tui.requestRender());
+			return {
+				dispose: () => {
+					unsub();
+					tuiRef = null;
+				},
+				invalidate() {
+					tui.requestRender();
+				},
+				render(width: number): string[] {
+					const { input, output } = cumulativeTokens(ctx.sessionManager.getEntries());
+					const usage = ctx.getContextUsage();
+					const window = usage?.contextWindow ?? ctx.model?.contextWindow ?? 0;
+
+					let contextStr: string;
+					if (usage && usage.percent !== null) {
+						const display = `${usage.percent.toFixed(1)}%/${formatTokens(window)}`;
+						contextStr =
+							usage.percent > 90
+								? theme.fg("error", display)
+								: usage.percent > 70
+									? theme.fg("warning", display)
+									: display;
+					} else {
+						contextStr = theme.fg("dim", `?/${window > 0 ? formatTokens(window) : "?"}`);
+					}
+
+					// Fixed-width mode slot, left-aligned: mode switches must not
+					// shift tokens/context/model.
+					const modeStatus = footerData.getExtensionStatuses().get("modes") ?? "⚙ implement";
+					const modeSlot = modeStatus + " ".repeat(Math.max(0, MODE_SLOT_WIDTH - visibleWidth(modeStatus)));
+
+					// Absolute context tokens, right before the model name.
+					const ctxTokens = theme.fg("dim", usage && usage.tokens !== null ? formatTokens(usage.tokens) : "?");
+
+					const left = `${theme.fg("dim", formatCwd(ctx.cwd))} · ${modeSlot} · ↑${formatTokens(input)} ↓${formatTokens(output)} · ${contextStr}`;
+					const right = `${ctxTokens} · ${theme.fg("dim", (ctx.model?.id ?? "no-model") + shortLevel(pi.getThinkingLevel()))}`;
+
+					const lw = visibleWidth(left);
+					const rw = visibleWidth(right);
+					// Spacer line after the status keeps it off the editor.
+					if (lw + rw + 1 > width) {
+						return [truncateToWidth(`${left} ${right}`, width), ""];
+					}
+					return [left + " ".repeat(width - lw - rw) + right, ""];
+				},
+			};
+		});
+	}
+
+	pi.registerCommand("footer", {
+		description: "Toggle the one-line status footer (custom ↔ default)",
+		handler: async (_args, ctx) => {
+			ctxRef = ctx;
+			enabled = !enabled;
+			if (enabled) {
+				install();
+				ctx.ui.notify("One-line footer enabled", "info");
+			} else {
+				ctx.ui.setFooter(undefined);
+				ctx.ui.notify("Default footer restored", "info");
+			}
+		},
+	});
+
+	// Keep segments live: model switches, thinking-level changes (native
+	// ctrl+alt+t cycle included), and finished turns change the line.
+	pi.on("model_select", async () => tuiRef?.requestRender());
+	pi.on("thinking_level_select", async () => tuiRef?.requestRender());
+	pi.on("agent_end", async () => tuiRef?.requestRender());
+
+	// Default on for every session.
+	pi.on("session_start", async (_event, ctx) => {
+		ctxRef = ctx;
+		enabled = true;
+		install();
+	});
+}

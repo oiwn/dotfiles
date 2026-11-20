@@ -1,18 +1,25 @@
 current_dir := `pwd`
 
-install:
-    mkdir -p ~/.config/nvim/
-    mkdir -p ~/.config/alacritty/
-    mkdir -p ~/.config/helix/
-    mkdir -p ~/.config/zellij
-    ln -sf {{current_dir}}/dots/init.lua ~/.config/nvim/init.lua
-    ln -sf {{current_dir}}/dots/.tmux.conf ~/.tmux.conf
-    ln -sf {{current_dir}}/dots/.editorconfig ~/.editorconfig
-    ln -sf {{current_dir}}/dots/.condarc ~/.condarc
-    ln -sf {{current_dir}}/dots/alacritty.yml ~/.config/alacritty/alacritty.yml
-    ln -sf {{current_dir}}/dots/helix.toml ~/.config/helix/config.toml
-    ln -sf {{current_dir}}/dots/languages.toml ~/.config/helix/languages.toml
-    ln -sf {{current_dir}}/dots/zellij.kdl ~/.config/zellij/config.kdl
-
 scan:
 	detect-secrets scan --use-all-plugins --all-files dots/ > .secrets.baseline
+
+# Converge pi runtime packages. Idempotent — safe to re-run (fresh-machine
+# path too); pi update remains the explicit refresh. cc-safety-net keeps
+# @latest per its own README (bare spec can hit a stale npx cache).
+pi-setup:
+	pi install npm:pi-mcp-adapter
+	pi install npm:pi-subagents
+	pi install npm:pi-lens
+	pi install npm:@narumitw/pi-usage
+	pi install npm:@juicesharp/rpiv-ask-user-question
+	pi install npm:@juicesharp/rpiv-todo
+	npx -y cc-safety-net@latest install
+
+# Install/refresh the personal `dotfiles` CLI (tools/dotfiles) into ~/.cargo/bin.
+install-tool:
+	cargo install --path tools/dotfiles
+
+# Reclaim disk: drop nix system generations older than <window> (rollback window) + clear the whole brew download cache.
+gc window="14d":
+	nix-collect-garbage --delete-older-than {{window}}
+	brew cleanup --prune=all
