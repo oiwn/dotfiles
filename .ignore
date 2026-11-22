@@ -1,0 +1,4 @@
+# Un-hide .agents/ for Helix file picker / rg / fd (not read by git).
+# Which skills show up is still governed by .agents/.gitignore
+# (only skills/dotfiles/ is whitelisted).
+!/.agents/

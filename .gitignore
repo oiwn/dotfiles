@@ -1,12 +1,18 @@
 # dotenv
 .env
 
+# agents
+.claude/
+.codex/
+
 # virtualenv
 venv/
 ENV/
 
 # files
 .DS_Store
+.ws.ron
+opencode.json
 .tmuxp.yaml
 .secrets.baseline
 .pre-commit-config.yaml
@@ -14,8 +20,8 @@ ENV/
 # Nix
 result
 .direnv
-vars.nix
 flake.lock
 
-# agents
-.agents/
+# build output
+/target
+

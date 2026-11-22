@@ -1,26 +1,15 @@
-# Dotfiles — pending work
+# Current Task Context: herdr migration apply — specdev ws, live herdr config, font rotation
 
-Everything not listed here is already implemented. See `flake.nix`, `hosts/macbook.nix`, `home/*.nix`, and `dots/` for the current state.
+State: edits done; **waiting on user apply** (exact commands printed in session 2026-11-22).
 
-## TODO
+## Context
 
-### Nix packages to add (in `home/packages.nix`)
+- Multiplexer is **herdr** (brew); workspace = gitignored root `.ws.ron` (specdev tree format, single opencode agent) via `specdev ws up|down|status`. Needs **specdev ≥ 0.5.2** (fish `agent_pane_busy` fix; installed binary is 0.5.1).
+- herdr `~/.config/herdr/config.toml` is **live, not nix-managed**; `prefix = "backtick"` set (reload: `herdr server reload-config`).
+- opencode pinned to `zai-coding-plan/glm-5.3-flash` via gitignored root `opencode.json` (per machine).
+- WezTerm rotates Nerd Font stacks (`CMD+ALT+F` picker / `CMD+ALT+SHIFT+F` cycle; **JetBrainsMono default**); JetBrainsMono/FiraCode NF casks install **ad-hoc** via brew.
+- zellij stays (secondary multiplexer); `dotfiles` CLI + rmux fully out of the config.
 
-- `libyaml`
-- `zstd`
-- `m4`
+## Next
 
-### Configs still to write
-
-| Target path | Where to wire it |
-|---|---|
-| `~/.config/fish/config.fish` | `home/terminal.nix` via `programs.fish` (aliases/env) or symlink from `dots/` |
-| `~/.config/starship.toml` | `home/terminal.nix` via `programs.starship.settings` or symlink from `dots/` |
-| `~/.config/wezterm/wezterm.lua` | replace the `return {}` stub in `home/terminal.nix` (`programs.wezterm.extraConfig`) or symlink from `dots/wezterm.lua` |
-
-## Out of scope (for now)
-
-- per-project `nix develop` / `shell.nix`
-- NixOS (Linux machines)
-- secrets management (agenix / sops-nix)
-- `sagemath` via Nix (does not build on aarch64-darwin; using the brew cask `sage` instead)
+User runs the apply block from the session: commit A (pending dotfiles-CLI fixes + skills-gitignore rework), commit B (this migration), `git push` (nix has unpushed `a3235f7`), specdev cargo install, font casks, `sudo darwin-rebuild switch …`, `brew uninstall rmux`, stale-dir cleanup, `herdr server reload-config`, then `specdev ws up` in this repo as the smoke test.

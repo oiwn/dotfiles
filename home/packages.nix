@@ -7,7 +7,6 @@
     # -------------------------------
     bat
     eza
-    ripgrep
     fd
     bottom
     duf
@@ -20,16 +19,12 @@
     yazi
     jless
     csvlens
-    tabiew
     television
     gitleaks
-    marksman
 
     # -------------------------------
-    # Shell & prompt
+    # Shell & prompt (managed via home-manager programs.fish / programs.starship)
     # -------------------------------
-    fish
-    starship
 
     # -------------------------------
     # Editors
@@ -38,18 +33,12 @@
     neovim
 
     # -------------------------------
-    # Terminal multiplexer
-    # -------------------------------
-    tmux
-
-    # -------------------------------
     # Dev tools
     # -------------------------------
     gh
     nodejs
     uv
     cmake
-    gcc
     jq
     asciinema
     netlify-cli
@@ -71,6 +60,8 @@
     # -------------------------------
     gnupg
     pinentry_mac
+    age
+    sops
 
     # -------------------------------
     # System / misc

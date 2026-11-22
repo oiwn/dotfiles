@@ -1,6 +1,11 @@
+# Copy to vars/<hostName>.nix — one file per machine (see flake.nix `hosts`).
 {
   hostName   = "your-mac-name";          # must match `scutil --get LocalHostName`
   systemUser = "your-mac-username";      # must match `whoami`
+  platform   = "aarch64-darwin";         # "x86_64-darwin" on Intel Macs
   gitName    = "your-git-display-name";
   gitEmail   = "you@example.com";
+
+  # Casks this machine skips (checked against the shared list in hosts/macbook.nix).
+  caskExclude = [ ];
 }

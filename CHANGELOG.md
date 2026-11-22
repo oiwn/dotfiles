@@ -1,0 +1,104 @@
+# Changelog
+
+## 2026-11-22 — herdr migration: specdev ws replaces the dotfiles CLI
+
+- `tools/dotfiles/` + root Cargo workspace deleted — the repo is config management only; `just install-tool` is gone
+- Workspace: gitignored root `.ws.ron` in specdev's tree format (session `dotfiles`; tabs spec/agent/code/cmd/files; single opencode agent, no crew) driven by `specdev ws up|down|status`
+- rmux retired from the config: brew line, `dots/rmux.conf`, `~/.config` symlinks; zellij stays as secondary multiplexer
+- herdr `~/.config/herdr/config.toml` set live (`prefix = "backtick"`) — deliberately not nix-managed (herdr rewrites it at runtime; pi `settings.json` precedent)
+- opencode pinned to `zai-coding-plan/glm-5.3-flash` via gitignored root `opencode.json` (per machine)
+- WezTerm rotates Nerd Font stacks (`CMD+ALT+F` picker, `CMD+ALT+SHIFT+F` cycle; JetBrainsMono NF default); JetBrainsMono/FiraCode NF casks install ad-hoc via brew
+
+## 2026-11-21 — dotfiles CLI — rmux workspace loader
+
+- Windows always load in client PWD (dir field removed, daemon-cwd bug fixed — panes were landing in the daemon's start dir); harness env scrubbed client-side + daemon global env cleaned via set-environment -g -u; 8 tests, cwd+env e2e-verified
+- Track `dotfiles-cli`
+
+## 2026-11-20 — dotfiles CLI — rmux workspace loader
+
+- Unit 1: tools/dotfiles crate + ws load via rmux-sdk (flattened RON schema, windows/panes/env/focus e2e-verified, idempotent, parse tests, fmt/test/clippy/prek green)
+- Unit 2: ws init (scaffold from managed dots/dotfiles/ws.ron template, placeholder substitutes session/env-key/herdr, all paths e2e-verified) + xdg.configFile symlink, just install-tool
+- Unit 3 (agent side): tmux/tmuxp/shim retired from config — rmux declared in brews, dots/rmux.conf renamed, fish wrappers + tmuxp dots deleted, specs/README updated, repo dogfoods .ws.ron; user apply steps pending
+- Rebuild after filter-repo incident (staged-not-committed batch lost to the hard reset): crate + template + configs + specs regenerated from session; new default template (spec/agents/code/cmd1/cmd2/yazi); acceptance green from root; full e2e re-verified
+- Env-key sanitization: <session>_ENV renders uppercased/dash-free (fish rejects dashes in var names — every pane's fenv startup errored); README gains the install-tool bootstrap step; 7 tests, e2e re-verified with clean fish startup
+- Track `dotfiles-cli`
+
+## 2026-10-28 — multihost kodo
+
+- Flake builds a darwinConfiguration per host from `vars/<host>.nix` (bakodo + kodo); kodo skips 8 casks via `caskExclude`; single vars.nix retired, docs updated.
+- Task `0002-multihost-kodo`; source: session 2026-10-27: run the same stack on second MacBook 'kodo' (alexch, Apple Silicon) — per-host vars, genAttrs flake, lighter cask set (drops: blender, gimp, krita, reaper, obs, bambu-studio, surge-xt, docker-desktop)
+
+## 2026-10-28 — tmuxp init fish
+
+- Fish `tmuxp-init` bootstraps a project's `./.tmuxp.yaml` from `dots/tmuxp/rust.yaml`; template moved under dots, both symlinked by home-manager, dangling `nvim/init.vim` link removed.
+- Task `0001-tmuxp-init-fish`; source: session 2026-10-27: fish command to bootstrap .tmuxp.yaml from the rust template (replace name, skip if present); also removes the dangling nvim/init.vim symlink left by the dots cleanup
+
+## 2026-09-21 — disk-reclaim `gc` recipe
+
+- **`just gc [window=14d]`**: `nix-collect-garbage --delete-older-than <window>` + `brew cleanup --prune=all` — reclaims old nix system generations and the brew download cache; keeps `<window>` of rollback (`gc 0d` ≈ `nix-collect-garbage -d`, no rollback). README "Daily updates" gains a "Reclaim disk" subsection (gc, custom window, `--dry-run` preview, max-reclaim tradeoff).
+- Motivation (2026-09-21 measurements): `/` at 85% (69G free); `/nix/store` 46G across 26 system generations — gens 1–5 pin three dead nixpkgs eras (`26.11.aabb203`, `d5bd9cd`, `15abb8c`); brew cache 17G. No per-user nix profiles exist (home-manager rides the system closure), so the system profile is the only GC root family.
+
+## 2026-09-21 — 3 pi extensions adopted · pi_setup.md
+
+- **`just pi-setup` → 7 packages**: added `@narumitw/pi-usage` (`/usage` — Z.AI GLM Coding Plan quota: 5h/weekly windows, monthly MCP allowance, plan level; menu-only for zai, no statusline item), `@juicesharp/rpiv-ask-user-question` (`ask_user_question` tool — tabbed dialog, typed options with descriptions, free-text row, per-question notes; the model asks instead of guessing), `@juicesharp/rpiv-todo` (`todo` tool + `/todos` + live panel above the editor; state replayed from the conversation — survives `/reload`/compaction; session-isolated from subagent children). Vetted in research: rpiv pair is zero-dep / no-network / no-disk-writes; pi-usage holds credentials in memory only, origin-validates before sending, fails closed. Collision-checked against keybindings (`ctrl+alt+t` vs `ctrl+shift+t`/`ctrl]`), the footer extension, and pi-subagents.
+- **`pi_setup.md`** (repo root, new): reference for the pi setup's three layers — nix-managed config (`dots/pi/agent/`), imperative-converged runtime packages (`just pi-setup`), runtime-mutable state (`settings.json`/`auth.json`) — plus the package catalog and operating commands. Per decision, the package catalog lives here, not in specs; `specs/overview.md`'s pi bullet and README (bootstrap step 9 + package-table row) point to it.
+- Closes the predecessor adoption task's pending docs round (pi-subagents/pi-lens/cc-safety-net): its recipe was already in the Justfile and its extension edits already shipped.
+- Evaluated and skipped: `pi-delete-session` (brand-new, 0 dependents — hand `rm` of session files is trivial).
+- **Shipped as `555d471`**, verified in a fresh pi session; `pi_setup.md` carries the durable detail (specs/ctx.md compressed to idle).
+
+## 2026-09-21 — model per mode (modes extension)
+
+- **Deterministic mode→model binding** in `dots/pi/agent/extensions/modes/index.ts`: `MODEL_BINDINGS` (research/plan → `zai/glm-5.3`, implement → `zai/glm-5.3-flash`, thinking `high` everywhere) applied via `applyModelBinding()` on every `setMode()` and at `session_start` (fresh boot in implement → flash). Session-scoped `pi.setModel` — settings.json default for new sessions untouched. Lookup miss or auth failure → error notify, current model kept. Mode notification now suffixes the applied model; the one-line footer's model segment follows automatically (re-renders on `model_select`). Manual `/model` mid-mode holds until the next mode switch re-asserts.
+- **Per-mode thinking levels** (follow-up round): research `glm-5.3` (high), plan `glm-5.3` (**medium**), implement `glm-5.3-flash` (high); type widened to `high|medium|low`; notification suffix gains the level (`· glm-5.3 (medium)`) so research/plan are distinguishable. Native `ctrl+alt+t` thinking cycle = temporary override, re-asserted on next mode switch; per-model persisted defaults stay native (`ctrl+s` / `modelThinkingLevels`).
+- **Live thinking level in the footer** (follow-up round 2): model segment reads `pi.getThinkingLevel()` at render time — `glm-5.3·h` / `glm-5.3·m` / `glm-5.3-flash·h` — so `ctrl+alt+t` cycling is visible and mode switches visibly re-assert; `thinking_level_select` added to the re-render triggers.
+- Decisions: D1 thinking high in all modes; D2 deterministic session-start application; D3 manual override tolerated between switches. `pi-model-switch` (npm) evaluated and rejected — agent-invoked switching, the LLM decides; wrong direction for user-controlled binding.
+- Roadmap item picked up into `specs/ctx.md` per the working loop.
+
+## 2026-09-21 — one-line status footer extension
+
+- **New `/footer` extension** (`dots/pi/agent/extensions/footer/index.ts`, default on): replaces pi's multi-segment footer with one line — `~/code/dotfiles · 🔍 research · ↑1.4M ↓108k · 17.2%/1.0M · 172k · glm-5.3`. Left block: abbreviated cwd, mode in a fixed-width slot right after cwd (visibleWidth-padded — mode switches never move later segments), cumulative in/out tokens (session entries incl. compaction usage blocks — counts survive compaction), context % via `ctx.getContextUsage()` with pi's >70/>90 colorization. Right block: absolute context tokens + model id. Spacer line after the status keeps it off the editor; `?`/`?/window` right after compaction. Dropped: R/W cache tokens, CH%, $, `(auto)`. `/footer` toggles custom ↔ default; live updates via `onBranchChange` + `model_select`/`agent_end` re-renders.
+- **modes**: footer status is now always-on — `⚙ implement` (dim) where it previously cleared the status; research/plan unchanged.
+- Default-footer stats decoded and documented in `specs/overview.md` operational notes (`R` = cache-read, not reasoning; `CH%` = latest-request cache-hit rate).
+
+## 2026-09-20 — vars.nix de-secreted: committed, staging ceremony removed
+
+- **Policy flip**: `vars.nix` is now a normal tracked, committed file. Rationale: its values (hostName/systemUser/gitName/gitEmail) have been public in pushed history since `2b9805b` and in commit metadata regardless; the gitignore + `git add -f --intent-to-add` ceremony protected nothing not already exposed while costing recurring flake-eval breakage (flag dropped after pull/rebase/stash rounds → eval fails / dangling symlinks).
+- **Removed**: `vars.nix` from `.gitignore`; the `just stage` recipe (staging is plain `git add -A` now — justfile keeps `scan`); the i-t-a gotchas from `specs/overview.md`.
+- **Docs swept**: README (bootstrap minus the i-t-a step, renumbered; stack table; architecture; design decisions), AGENTS.md (gotchas: staging is plain git), `.agents/skills/dotfiles` (golden rules).
+- **Kept**: the new-files-under-`dots/` gotcha (`git add -N` before a switch — flake reads the repo through git; independent of vars.nix); `vars.nix.example` as a forker template; `git pull --rebase --autostash` advice (now for dirty indexes generally).
+- Post-flip: `git commit -a`, GUI "stage all", and bare `git add .` are all safe — the whole class of vars.nix leak vectors is gone.
+
+## 2026-09-20 — pi ↔ specdev integration tightened · /healthcheck · pi_setup.md retired
+
+- **modes extension became a directory** (`dots/pi/agent/extensions/modes/{index,readonly}.ts`): specs-aware banners per mode — `specs/` detected once at `session_start`, every mode injects a specs/plain variant each turn (tag prefix unchanged, context filter still drops stale banners). specdev in research is **awareness, not obligation** (consult specs when useful); research/plan name the web stack — search via web-search-prime MCP, read pages via **pginf preferred** (web-reader MCP fallback, curl GET last), used when the task needs it; rust-CLI preference voiced (rg/fd/bat/eza/duf). Plain plan banner suggests `specdev init`.
+- **allowlist extracted to `readonly.ts`** (data-driven entries + `CLI_INSTRUMENTS` — single source of truth shared with healthcheck; rust-first per installed provenance: rg brew, fd/bat/eza/duf/tokei/jq nix, specdev/pginf cargo). Read-only `specdev status|scan|list|--version|--help` now allowed in research/plan (`init`/`skill install` stay blocked); corpus → 132 tests.
+- **new `/healthcheck` extension** (`dots/pi/agent/extensions/healthcheck/index.ts`): overlay inventory of the workflow instruments — pi + CLI instruments via `--version` (✗ missing / ⚠ no `--version` support), specdev skill frontmatter, mcp.json servers + auth.json `.zai.key` presence (value never printed), MCP tool registration via `getAllTools()`, keybindings/theme/modes files. Binaries spawned via child_process, independent of the bash gate.
+- **local skill `.agents/skills/dotfiles/`** — repo workflow for agents (just stage, vars.nix intent-to-add, user-run darwin-rebuild, flake-update policy, Nix GC guidance + rollback tradeoff). `justfile` `stage` recipe fixed (spaces → tab — `just stage` was erroring; just only accepts tabs).
+- **wiring** (`home/dotfiles.nix`): modes dir + healthcheck entries; first switch to this layout must be followed by `rm ~/.pi/agent/extensions/modes.ts` (stale pre-layout symlink would double-register `/mode`).
+- **`specs/pi_setup.md` retired** — implemented in full (modes, MCP web tools, theme, tmux italics, global specdev skill; verified 2026-09-20). Durable leftovers routed: tmux italics gotcha → `specs/overview.md` Operational notes; LSP + symposium candidates → `specs/ideas.md`. File reduced to a stub; deletion by the user.
+- **healthcheck MCP-name fix** (same day, fresh-session check): `getAllTools()` exposes server proxies (`mcp__web_reader`), not internal tool names (`web-reader_webReader`) — the reader pattern `/webreader/i` never matched (false ⚠; search matched by luck). Patterns now tolerate both schemes (`web[-_]?…`); web-reader verified end-to-end.
+- **healthcheck overlay overflow fix** (same day, user report): tokei's version line (`tokei 14.0.0 compiled with serialization support: …`, 66 chars) ran past the 64-char detail column. Version output now strips the redundant tool-name prefix, and the detail column is clipped visibleWidth-aware with an ellipsis — long output from any instrument can no longer break the box.
+
+## 2026-08-29 — pi modes extension (written + hardened) · zellij adopted · tmux mouse
+
+- **modes extension shipped and hardened** (`dots/pi/agent/extensions/modes.ts`, wired via `home.file`): `/mode` + Shift+Tab / Ctrl+Alt+M cycle (thinking-cycle remapped to `ctrl+alt+t`), research/plan/implement gates (tool swap, plan-mode `specs/**` path gate, bash read-only allowlist), per-mode banners via `before_agent_start`, session persistence. Hardening after live false positives: quote/escape-aware `maskShellQuoting()` (quoted `"a\|b"`/`'a; b'`/escaped pipes are literals now; `$(…)`/backticks stay rejected even inside double quotes); find/`date`/curl write-flag checks moved quote-tolerant onto the raw string (closes `find "-exec"` evasion); block-reason copy fixed; 122-test corpus in `modes.test.ts` (repo-only, `node --test` — never symlinked, pi never loads it).
+- **zellij adopted** (tmux stays primary): `zellij` added to `brews` — nixpkgs dropped zellij entirely (verified at our pin and master); "tmux only. zellij out of scope" amended in `specs/overview.md` + `README.md`. `dots/zellij.kdl` rewritten from a stale pre-nix dump to a minimal delta config: `catppuccin-mocha` (matches WezTerm), `pane_frames false`, `default_layout "compact"`, pbcopy clipboard, `default_mode "locked"`, and the tmux-style `` ` `` prefix as a **mode hop** (`` ` 1..9`` jumps 1-based like `base-index 1`, `` ` c/n/p/d ``, double-backtick literal) — zellij has no key sequences, caught by `zellij setup --check` before shipping. Wired via `xdg.configFile."zellij/config.kdl"`; live dump preserved as `config.kdl.hm-bak`; verified in a fresh session.
+- **tmux mouse**: `set -g mouse on` added to `dots/.tmux.conf` (conf never set it → wheel never scrolled pane history; `set-clipboard on` + WezTerm OSC52 already covered copy). Applied live via `tmux source-file` — no server restart.
+- **Gotchas documented** (`specs/overview.md` Operational notes): commit/rebase/stash rounds can silently drop `vars.nix`'s intent-to-add flag — check `git ls-files -s vars.nix` (expect empty blob `e69de29…`) after any commit round; re-register with `git add -f --intent-to-add vars.nix`.
+- **Routed out:** tmuxp-parity work → zelp v2 revival (separate project, github.com/oiwn/zelp; transit prompt delivered 2026-08-29). Approve-edits mode idea → `specs/ideas.md`.
+
+## 2026-08-13 — stable channel pin + activation fixes
+
+- `flake.nix`: pinned `nixpkgs`→`nixos-26.05`, `nix-darwin`→`nix-darwin-26.05`, `home-manager`→`release-26.05` (were `unstable`/`master`/default). Stable channel ⇒ `nix flake update` stays cheap (cache hits), no more ~1 GB closure re-download per update.
+- `hosts/macbook.nix`: `homebrew.onActivation.upgrade = false` (was `true`) — switches no longer `brew upgrade` (which re-downloaded multi-GB casks every switch); `autoUpdate` stays `true`.
+- `dots/wezterm.lua`: added `Cmd+Shift+Left/Right` → `MoveTabRelative(-1/1)`.
+- Docs: standardized the switch command to the installed `darwin-rebuild`; `AGENTS.md` splits "apply changes" from "bump inputs".
+
+## 2026-08-13 — starship/tabiew moved to Homebrew (resolves cctools linker regression)
+
+- macOS Tahoe + nixpkgs `cctools` linker regression (nixpkgs#540450, fixed by PR#540463) blocked local from-source builds of `starship`/`tabiew`.
+- `starship`/`tabiew` → `brews` (bottles bypass nix build); dropped `programs.starship.enable`; fish now sources `starship init fish` via `if type -q starship`.
+
+## (earlier) — ripgrep ownership consolidation (Issue #5)
+
+- brew `rg` (hard dep of `codex`/`opencode`) was shadowing the nix `rg`. Let brew own `rg`: removed from `home/packages.nix`, added to `brews`.

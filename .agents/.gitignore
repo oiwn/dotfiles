@@ -1,0 +1,13 @@
+# .agents — only project-owned skills are versioned; 3rd-party skills
+# (specdev/decide/code-health from `specdev skill install --local`,
+# find-crate-source/rust-best-practice from symposium)
+# live on disk only.
+#
+# IMPORTANT: this file MUST stay committed — it carries its own !.gitignore
+# exception; on a fresh clone without it, everything here gets tracked.
+
+/*
+!/.gitignore
+!/skills/
+/skills/*
+!/skills/dotfiles/

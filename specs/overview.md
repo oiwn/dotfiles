@@ -5,58 +5,96 @@
 | Layer | Tool | Why this one |
 |---|---|---|
 | Package manager | **Lix** | Drop-in Nix fork, flakes on by default, cleaner uninstall, friendlier community fork — same CLI (`nix`) as stock Nix. |
-| macOS config | **nix-darwin** | Declarative `system.defaults` (Dock, Finder, key repeat), declarative Homebrew (`brews`/`casks`/fonts), LaunchAgents — the only thing on macOS that turns System Settings into code. |
-| User packages + dotfiles | **home-manager** | Per-user `home.packages`, `programs.*` modules (git, gh, gpg, fish, starship, wezterm), and `home.file`/`xdg.configFile` symlinks from `dots/`. |
-| Pinning | **Nix flakes** | `flake.nix` + `flake.lock` — reproducible across machines, single source of input versions. |
-| Personal values | **`vars.nix`** | Gitignored file holding `userName`/`userEmail`; threaded through `specialArgs`/`extraSpecialArgs` so modules consume it without hardcoding identity in the repo. |
+| macOS config | **nix-darwin** | Declarative `system.defaults` (Dock, Finder, key repeat), declarative Homebrew (`brews`/`casks`/fonts), LaunchAgents — turns System Settings + brew into code. |
+| User packages + dotfiles | **home-manager** | Per-user `home.packages`, `programs.*` modules (git, gh, gpg, fish, starship), and `home.file`/`xdg.configFile` symlinks from `dots/`. |
+| Flakes | **Nix flakes** | `flake.nix` declares inputs; `flake.lock` is **gitignored** — each machine resolves fresh (similar dev env, not bit-identical). |
+| Per-machine values | **`vars/<host>.nix`** | Committed (de-secreted 2026-09-20). One file per host (`vars/bakodo.nix`, `vars/kodo.nix`): `hostName` / `systemUser` / `platform` / `gitName` / `gitEmail` / `caskExclude`; threaded into modules via `specialArgs` / `extraSpecialArgs`. |
 
 ## Architecture
 
 ```
 dotfiles/
-  flake.nix           # inputs + darwinConfigurations.karok, threads vars.nix
-  flake.lock          # pinned input versions (committed)
-  vars.nix.example    # template — copy to vars.nix and edit before first switch
-  vars.nix            # gitignored — { userName, userEmail }
+  flake.nix           # inputs + genAttrs over hosts [ "bakodo" "kodo" ]; each imports
+                      # vars/<host>.nix and threads it via specialArgs / extraSpecialArgs
+  vars.nix.example    # committed template (placeholder fields)
+  vars/
+    bakodo.nix        # committed, per machine (hostName, systemUser, platform, git id, caskExclude)
+    kodo.nix          # second MacBook — same user/platform, caskExclude drops 8 apps
   hosts/
-    macbook.nix       # nix-darwin: system.defaults, homebrew brews/casks/fonts, system packages
+    macbook.nix       # shared nix-darwin module: system.stateVersion, primaryUser,
+                      # system.defaults, full brew/cask list (filtered by vars.caskExclude),
+                      # programs.fish.enable, system packages
   home/
-    default.nix       # home-manager entry, imports sub-modules
+    default.nix       # home-manager entry; derives username/homeDirectory from vars.systemUser
     packages.nix      # home.packages — Nix CLI tools
     dotfiles.nix      # home.file / xdg.configFile — symlinks into dots/
-    terminal.nix      # programs.fish, programs.starship, programs.wezterm
-    dev.nix           # programs.git (consumes vars), programs.gh, programs.gpg
+    terminal.nix      # programs.fish (incl. brew shellenv sourcing) + programs.starship
+    dev.nix           # programs.git (vars.gitName/gitEmail), programs.gh, programs.gpg
     apps.nix          # placeholder; brews/casks declared in hosts/macbook.nix
   dots/               # raw dotfiles, source of truth, symlinked by home-manager
+    helix.toml, languages.toml, init.lua, .editorconfig, hammerspoon.lua,
+    wezterm.lua, zellij.kdl
+    pi/agent/         # extensions/modes/{index,readonly}.ts, extensions/healthcheck/index.ts,
+                      # keybindings.json, mcp.json (z.ai MCP tools)
+  .ws.ron             # gitignored — herdr workspace (specdev format)
+  opencode.json       # gitignored — opencode model pin (GLM-5.3-Flash)
 ```
 
-## Data Flow
+## Data flow
 
 ```
-vars.nix ─┐
-          ├─► flake.nix (specialArgs / extraSpecialArgs)
-          │       │
-          │       ├─► hosts/macbook.nix ─► nix-darwin ─► system defaults + Homebrew
-          │       │
-          │       └─► home/*.nix       ─► home-manager ─► user packages + dotfile symlinks
-          │
-dots/ ────┴─► home.file / xdg.configFile (read-only symlinks into ~/.config and ~)
+vars/<host>.nix ─┐
+                 ├─► flake.nix (specialArgs / extraSpecialArgs)
+                 │       │
+                 │       ├─► hosts/macbook.nix ─► nix-darwin ─► system defaults + Homebrew
+                 │       │
+                 │       └─► home/*.nix       ─► home-manager ─► user packages + dotfile symlinks
+                 │
+dots/ ───────────┴─► home.file / xdg.configFile (read-only symlinks into ~/.config and ~)
 ```
 
-Single command applies it all:
+Single command applies it all on any host (hostname must match a `vars/<host>.nix` entry and the flake's `hosts` list):
 
 ```sh
-darwin-rebuild switch --flake .#karok
+sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 ```
+
+## Runtime layout — where installed software lives
+
+| Path | Source |
+|---|---|
+| `/opt/homebrew/bin/*` | brews + cask CLI shims (`brew`, `codex`, `claude`, `mosh`, `opencode`, …) |
+| `/Applications/*.app` | casks (WezTerm, Slack, GIMP, …) |
+| `~/.nix-profile/bin/*` | `home.packages` (ripgrep, fd, helix, neovim, fish, starship, …) |
+| `/run/current-system/sw/bin/*` | `environment.systemPackages` (coreutils, nmap) |
+
+Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shellenv` in `interactiveShellInit` — the brew installer only patches zsh's profile, not fish's.
 
 ## Design decisions
 
-- **Rust toolchain via `rustup`** (not Nix) — flexible target/nightly switching. Rust *CLI tools* (ripgrep, bat, fd, eza, etc.) come from Nix as prebuilt binaries.
+- **Reproducibility is "similar," not "identical."** `flake.lock` is gitignored so each machine resolves fresh. Inputs are pinned to the `nixos-26.05` / `nix-darwin-26.05` / `home-manager release-26.05` release branches (not `unstable`), so `nix flake update` moves within a frozen channel → cache hits, tiny downloads between updates.
+- **Rust toolchain via `rustup`** (installed by Nix). Toolchains/components managed by rustup for flexible target/nightly switching. Rust CLI tools (ripgrep, bat, fd, eza, …) come from Nix as prebuilt binaries.
 - **Shell**: fish + starship. zsh + oh-my-zsh + p10k removed.
-- **Python**: uv (system-wide via Nix). conda/miniforge removed.
-- **Terminal**: WezTerm. Warp removed.
-- **Multiplexer**: tmux only. zellij out of scope.
-- **Fast-moving CLIs** (`opencode`, `claude-code`, `gemini-cli`, `crush`, `prek`, `codex`): Homebrew `brews` for daily freshness, not Nix.
-- **GUI apps**: Homebrew `casks` managed by nix-darwin (declarative install, Gatekeeper kept on).
-- **Dotfiles**: raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs, so files stay editable and portable.
-- **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; removing a line from the config does not auto-uninstall (user does that manually).
+- **Python**: uv (via Nix). conda/miniforge removed.
+- **Terminal**: WezTerm (cask), config symlinked from `dots/wezterm.lua`; font stacks rotate via keybinds (JetBrainsMono NF default), font casks ad-hoc via brew.
+- **opencode model pin**: root `opencode.json` (gitignored, per machine) pins `zai-coding-plan/glm-5.3-flash`; covers TUI, CLI, and herdr opencode panes (cwd inheritance).
+- **Multiplexer**: **herdr via brew** (2026-11-22; tmux lineage + `dotfiles` CLI retired). Workspaces: per-project `.ws.ron` (gitignored, specdev **tree format**; grammar in specdev's `specs/herdr.md`) built by `specdev ws up|down|status` (cargo CLI from `~/code/specdev`, **≥ 0.5.2** for the fish `agent_pane_busy` fix). zellij stays (secondary).
+- **Fast-moving CLIs** as Homebrew brews for daily freshness: `anomalyco/tap/opencode-v2` (moved off the plain `opencode` formula 2026-09-20 — same binary name, the two formulas fight over `/opt/homebrew/bin/opencode`), `prek`, `charmbracelet/tap/crush`, `rclone`, `zola` (2026-10-29: pinned nixpkgs lags brew — rclone 1.75.0 vs 1.75.2, zola 0.22.1 vs 0.23.6). Slow movers go to nix instead (`age`, `sops`). Third-party taps: `nklmilojevic/sofka` (sofka), `rustfs/tap` (rc); `herdr` and `libomp` (OpenMP for local ML builds) also brew. Anthropic and OpenAI ship their CLIs as Homebrew **casks**: `claude-code`, `codex`.
+- **mosh via Homebrew, not nixpkgs** (hit 2026-09-20): the nix mosh bundle ships its own OpenSSH build that rejects `UseKeychain` from `~/.ssh/config` (and doesn't even honor `IgnoreUnknown`); brew mosh invokes `ssh` from PATH — Apple's `/usr/bin/ssh`, which parses the config fine. Keep it in `hosts/macbook.nix` `brews`, not `environment.systemPackages`. Fallback if ssh resolution ever goes odd again: `mosh --ssh=/usr/bin/ssh <host>`.
+- **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper kept on (no `no_quarantine`).
+- **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
+- **`homebrew.onActivation.upgrade = false`** (with `autoUpdate = true`): switches install only *missing* brews/casks and keep the formula index fresh, but never `brew upgrade` — so a dotfile-only `switch` is seconds, not a multi-GB cask re-download. Update packages explicitly with `brew upgrade`.
+- **`home-manager.backupFileExtension = "hm-bak"`**: when home-manager wants to write a file you already have, it renames the existing one to `<file>.hm-bak` instead of refusing to activate.
+- **Dotfiles** as raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs, so files stay editable and portable across non-Nix environments.
+- **Personal values in `vars/<host>.nix` are committed** (de-secreted 2026-09-20): identity values were already public in pushed history (since `2b9805b`) and commit metadata, so the gitignored + intent-to-add ceremony was retired — it cost recurring flake-eval breakage (dropped flag after pull/rebase/stash) and protected nothing not already exposed. Forks copy `vars.nix.example` → `vars/<host>.nix`; per-host divergence lives in each host's file (kodo drops 8 casks via `caskExclude`).
+- **pi agent: config managed, state live** — `dots/pi/agent/` holds only config (`extensions/modes/` (index + readonly), `extensions/healthcheck/`, `keybindings.json`, `mcp.json`), symlinked by home-manager. `mcp.json` is symlink-safe: pi-mcp-adapter reads but never rewrites the source. `settings.json`/`auth.json` are deliberately NOT managed (pi writes them at runtime). The z.ai MCP tools (`web-search-prime`, `web-reader` servers) authenticate via an adapter command-secret — `"bearerToken": "!jq -r .zai.key ~/.pi/agent/auth.json"` under `auth: "bearer"` — so the API key lives *only* in `auth.json`: zero env vars, zero key copies in git/store (`jq` resolves via pi's inherited PATH). Runtime packages (npm extensions) are the imperative third layer — converged by `just pi-setup`, catalogued in `pi_setup.md`.
+
+## Operational notes
+
+- **Sudo required**: nix-darwin activation now runs as root. Every `darwin-rebuild switch` needs `sudo`.
+- **New files must be git-visible before a switch**: flake eval reads the repo through git — tracked files (worktree content) plus intent-to-add entries; plain untracked files are invisible. Symptom: home-manager installs **dangling symlinks** with no build error (hit with untracked `dots/pi/` — extension/keybindings silently never appeared in `~/.pi/agent`). Fix: `git add -N <path>` before `darwin-rebuild switch`; sanity-check with `nix eval --no-warn-dirty --raw '.#<host>.config.home-manager.users.<user>.home.file."<path>".source'` and `test -f` the printed store path.
+- **Agent skills: only `.agents/skills/dotfiles/` is versioned** (2026-11-21): 3rd-party skills (specdev, symposium) live on disk only, filtered by `.agents/.gitignore`. Its patterns must be **anchored** (`/*`, `/skills/*`) — a bare `*` matches at every depth and silently ignores `skills/dotfiles/SKILL.md` too (masked while the file is already tracked; check with `git check-ignore -v --no-index`). Root `.ignore` (`!/.agents/`) un-hides the dot-dir for Helix's file picker / rg / fd; git ignores `.ignore`.
+- **Hostname binding**: `flake.nix` builds one `darwinConfiguration` per entry in `hosts = [ "bakodo" "kodo" ]`, each importing `vars/<host>.nix`. A new machine: copy `vars.nix.example` → `vars/<LocalHostName>.nix`, fill it in, add the name to the `hosts` list. Bootstrap on the machine itself (needs Lix + the repo): `sudo darwin-rebuild switch --flake .#<host>` — the `flake.lock` is gitignored, so each machine resolves its own. Note: the apply command with `.#$(scutil --get LocalHostName)` picks the right config automatically per machine.
+- **z.ai API surface** (hit 2026-09-20): GLM Coding Plan credits cover only the **MCP** endpoints — `api.z.ai/api/mcp/{web_search_prime,web_reader}/mcp`. The REST tools (`/api/paas/v4/*`, even under the coding base `/api/coding/paas/v4/*`) are open-platform pay-per-use → plan keys get 1113/429 there. Docs names can lie: tool is `web_search_prime`, not `webSearchPrime`; schemas are strict (`additionalProperties: false` — no `count` param). **Don't infer endpoint URLs from sibling services**: a wrong-but-existing endpoint (`/mcp/web_search/mcp` — legacy, initializes fine) hides the mistake until the first billable call. Verify new MCP wiring with one real `tools/call` before declaring done.
+- **herdr config is live, not nix-managed**: herdr rewrites `~/.config/herdr/config.toml` at runtime — a store symlink gets silently replaced (pi `settings.json` precedent). Repo setup: `[keys]` → `prefix = "backtick"` (apply via `herdr server reload-config`).
+- **pi default footer stats decoded** (2026-09-21, for the one-line `/footer` extension): `↑`/`↓` = cumulative input/output tokens; `R`/`W` = cache **read/write** tokens (not reasoning); `CH%` = latest-request cache-hit rate = `cacheRead/(input + cacheRead + cacheWrite)`; `$` = session cost; `pct%/window` = context usage via `getContextUsage()` (compaction-aware, null right after compaction); `(auto)` = auto-compaction mode. Context % colorized >70% warning / >90% error.
