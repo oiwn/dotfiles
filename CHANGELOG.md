@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-22 — herdr migration: specdev ws replaces the dotfiles CLI
+
+- `tools/dotfiles/` + root Cargo workspace deleted — the repo is config management only; `just install-tool` is gone
+- Workspace: gitignored root `.ws.ron` in specdev's tree format (session `dotfiles`; tabs spec/agent/code/cmd/files; single opencode agent, no crew) driven by `specdev ws up|down|status`
+- rmux retired from the config: brew line, `dots/rmux.conf`, `~/.config` symlinks; zellij stays as secondary multiplexer
+- herdr `~/.config/herdr/config.toml` set live (`prefix = "backtick"`) — deliberately not nix-managed (herdr rewrites it at runtime; pi `settings.json` precedent)
+- opencode pinned to `zai-coding-plan/glm-5.3-flash` via gitignored root `opencode.json` (per machine)
+- WezTerm rotates Nerd Font stacks (`CMD+ALT+F` picker, `CMD+ALT+SHIFT+F` cycle; JetBrainsMono NF default); JetBrainsMono/FiraCode NF casks install ad-hoc via brew
+
+## 2026-11-21 — dotfiles CLI — rmux workspace loader
+
+- Windows always load in client PWD (dir field removed, daemon-cwd bug fixed — panes were landing in the daemon's start dir); harness env scrubbed client-side + daemon global env cleaned via set-environment -g -u; 8 tests, cwd+env e2e-verified
+- Track `dotfiles-cli`
+
 ## 2026-11-20 — dotfiles CLI — rmux workspace loader
 
 - Unit 1: tools/dotfiles crate + ws load via rmux-sdk (flattened RON schema, windows/panes/env/focus e2e-verified, idempotent, parse tests, fmt/test/clippy/prek green)

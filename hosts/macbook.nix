@@ -53,7 +53,6 @@
       "anomalyco/tap/opencode-v2"  # v2 replaced the plain `opencode` formula — same binary name, they'd fight over the symlink
       "charmbracelet/tap/crush"
       "prek"
-      "rmux"  # terminal multiplexer (tmux retired 2026-11-20); sessions via `dotfiles ws load` — rmux-sdk version must match (tools/dotfiles)
       "zellij"
       "ripgrep"
       "starship"
@@ -62,7 +61,7 @@
       "mosh"  # via brew, not nixpkgs: nix mosh bundles an openssh that rejects ~/.ssh/config UseKeychain; brew mosh uses PATH ssh (Apple)
       "rclone"   # fast-moving (backends) — brew freshness; nixpkgs pin lags
       "zola"     # fast-moving — brew freshness
-      "herdr"
+      "herdr"  # terminal workspace manager for AI agents; workspaces via `specdev ws` (.ws.ron)
       "libomp"   # OpenMP runtime for local ML builds (llama.cpp/whisper.cpp/ComfyUI nodes)
       "nklmilojevic/sofka/sofka"
       "rustfs/tap/rc"

@@ -19,10 +19,11 @@ mouse_mode true
 // passthrough-first UX (single letters still switch modes)
 default_mode "locked"
 
-// tmux muscle memory — mirrors dots/.tmux.conf: prefix `, base-index 1.
-// Zellij has no key sequences; the prefix is a mode hop: ` enters tab mode,
-// whose keys act once and return to locked. Scoped to locked so normal-mode
-// typing is untouched; tmux grabs the backtick itself when nested in a pane.
+// tmux-lineage muscle memory (prefix `, base-index 1) — kept after the tmux/
+// rmux retirement; herdr's TUI uses the same key as its prefix. Zellij has no
+// key sequences; the prefix is a mode hop: ` enters tab mode, whose keys act
+// once and return to locked. Scoped to locked so normal-mode typing is
+// untouched; herdr grabs the backtick itself when nested in a herdr pane.
 keybinds {
     locked {
         bind "`" { SwitchToMode "tab"; }
@@ -37,7 +38,7 @@ keybinds {
         bind "7" { GoToTab 7; SwitchToMode "locked"; }
         bind "8" { GoToTab 8; SwitchToMode "locked"; }
         bind "9" { GoToTab 9; SwitchToMode "locked"; }
-        bind "`" { WriteChars "`"; SwitchToMode "locked"; } // literal backtick (= tmux send-prefix)
+        bind "`" { WriteChars "`"; SwitchToMode "locked"; } // literal backtick (= send-prefix)
         bind "c" { NewTab; SwitchToMode "locked"; }
         bind "n" { GoToNextTab; SwitchToMode "locked"; }
         bind "p" { GoToPreviousTab; SwitchToMode "locked"; }

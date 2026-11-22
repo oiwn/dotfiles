@@ -4,20 +4,9 @@ let
   dotsDir = ../dots;
 in
 {
-  # =====================
-  # rmux — ~/.config/rmux/rmux.conf (brew rmux)
-  # Formerly .tmux.conf (tmux retired 2026-11-20): every directive verified
-  # supported on rmux 0.10.0 (incl. extended-keys csi-u, terminal-overrides
-  # RGB/sitm, set-clipboard OSC52). Sessions load via `dotfiles ws load`
-  # (tools/dotfiles cargo bin, rmux-sdk daemon IPC).
-  # =====================
-  xdg.configFile."rmux/rmux.conf".source = "${dotsDir}/rmux.conf";
-
-  # =====================
-  # dotfiles CLI — ~/.config/dotfiles/
-  # Template for `dotfiles ws init` (tools/dotfiles cargo bin).
-  # =====================
-  xdg.configFile."dotfiles/ws.ron".source = "${dotsDir}/dotfiles/ws.ron";
+  # Multiplexer note (2026-11-22): rmux + the `dotfiles` CLI retired — herdr
+  # (brew) is the workspace; its config.toml is live, deliberately unmanaged
+  # (herdr rewrites it at runtime; see specs/overview.md).
 
   # =====================
   # helix — ~/.config/helix/

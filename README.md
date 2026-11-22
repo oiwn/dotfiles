@@ -39,14 +39,16 @@ $EDITOR vars.nix
 #    --flake .#<host> resolves darwinConfigurations.<your-hostName>.
 sudo darwin-rebuild switch --flake .#$(scutil --get LocalHostName)
 
-# 7. Initialize Rust toolchain (rustup itself was installed by step 6).
-#    clippy + rustfmt are bundled with the stable channel; rust-analyzer is separate.
+# 7. Initialize Rust toolchain (rustup itself was installed by step 6) —
+#    needed to build the specdev CLI in step 8. clippy + rustfmt are bundled
+#    with the stable channel; rust-analyzer is separate.
 rustup default stable
 rustup component add rust-analyzer
 
-# 8. Install the personal `dotfiles` CLI (rmux workspace loader, tools/dotfiles).
-#    Also refresh it after editing the crate.
-just install-tool
+# 8. Install the specdev CLI — the herdr workspace manager (per-project
+#    `.ws.ron`, `specdev ws up|down|status`). Personal CLI, built from its own
+#    repo; refresh it there after changes. Keep it ≥ 0.5.2 (fish pane-busy fix).
+cd ~/code/specdev && cargo install --path crates/cli
 
 # 9. Make fish the login shell
 echo "$(which fish)" | sudo tee -a /etc/shells
@@ -57,6 +59,11 @@ just pi-setup
 ```
 
 After step 6, `darwin-rebuild` is on PATH for subsequent switches (no `nix run` wrapper needed).
+
+herdr reads `~/.config/herdr/config.toml` — a **live file**, deliberately not
+nix-managed (herdr rewrites it at runtime; same reason pi's `settings.json`
+stays unmanaged). Minimal setup: a `[keys]` table with `prefix = "backtick"`,
+applied with `herdr config check && herdr server reload-config`.
 
 ### Pre-existing dotfiles
 
@@ -130,6 +137,7 @@ dotfiles/
 | `/opt/homebrew/bin/*` | brews + cask CLI shims (`brew`, `codex`, `mosh`, `opencode`, …) |
 | `/Applications/*.app` | casks (WezTerm, Slack, GIMP, …) |
 | `~/.nix-profile/bin/*` | `home.packages` (fd, bat, helix, neovim, …) |
+| `~/.cargo/bin/specdev` | `cargo install --path ~/code/specdev/crates/cli` (herdr workspace manager for `.ws.ron`) |
 | `/run/current-system/sw/bin/*` | `environment.systemPackages` (coreutils, nmap) |
 
 Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shellenv` in `interactiveShellInit`.
@@ -139,8 +147,8 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **Rust toolchain**: `rustup` installed via Nix; toolchains/components managed by rustup (flexible targets/nightly). Rust CLI tools (bat, fd, eza, …) come from Nix as prebuilt binaries. Exception: `ripgrep` is Homebrew-managed because it's a shared runtime dependency of the brew-managed agents (`codex`, `opencode`).
 - **Shell**: fish + starship (zsh + oh-my-zsh removed).
 - **Python**: uv instead of conda.
-- **Terminal**: WezTerm (Warp removed).
-- **Multiplexer**: rmux via brew (tmux retired 2026-11-20 — declared in `hosts/macbook.nix`); zellij via brew (nixpkgs dropped zellij; brew tracks releases).
+- **Terminal**: WezTerm (Warp removed). Font rotation across Nerd Font stacks (`CMD+ALT+F` picker, `CMD+ALT+SHIFT+F` cycle; JetBrainsMono default, Hack/MesloLGS/FiraCode in the rotation) — the extra NF casks install ad-hoc via brew, not declared in nix.
+- **Multiplexer**: herdr via brew — terminal workspace manager for AI agents. Per-project `.ws.ron` (gitignored) is built by `specdev ws up|down|status` (personal CLI from `~/code/specdev`). zellij stays via brew as a secondary multiplexer (nixpkgs dropped zellij; brew tracks releases). tmux/tmuxp retired 2026-11-20; rmux and the personal `dotfiles` CLI retired 2026-11-22.
 - **mosh via brew, not nixpkgs**: the nix mosh bundle ships its own OpenSSH, which rejects `UseKeychain` from `~/.ssh/config`; brew mosh invokes `ssh` from PATH (Apple's `/usr/bin/ssh`), which parses the config fine.
 - **Fast-moving CLIs** (`opencode-v2` from `anomalyco/tap` — replaced the plain `opencode` formula, same binary name, `crush`, `prek`, `rclone`, `zola`): Homebrew brews for daily freshness; slow movers (`age`, `sops`) are nix packages. `claude-code` and `codex` are casks (that's how Homebrew ships them).
 - **GUI apps**: Homebrew casks managed by nix-darwin; Gatekeeper left enabled.

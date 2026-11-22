@@ -1,6 +1,10 @@
 # dotenv
 .env
 
+# agents
+.claude/
+.codex/
+
 # virtualenv
 venv/
 ENV/
@@ -8,6 +12,7 @@ ENV/
 # files
 .DS_Store
 .ws.ron
+opencode.json
 .tmuxp.yaml
 .secrets.baseline
 .pre-commit-config.yaml
@@ -17,12 +22,6 @@ result
 .direnv
 flake.lock
 
-# Rust (workspace target/ at root; Cargo.lock is tracked)
+# build output
 /target
 
-# agents (only project-owned skills versioned; 3rd-party skills live on disk
-# and are reinstalled with `specdev skill install --local`)
-.agents/*
-!.agents/skills/
-.agents/skills/*
-!.agents/skills/dotfiles/

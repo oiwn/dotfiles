@@ -14,7 +14,7 @@ description: >
 
 - The agent edits files; **the user runs every state-changing command**
   (darwin-rebuild, flake update, brew install/upgrade, nix GC, git commit/push,
-  tmux kill-server). Print the command, don't run it.
+  herdr server stop, specdev ws down). Print the command, don't run it.
 - Staging is plain git (`git add -A`); `vars.nix` is tracked like everything
   else (de-secreted 2026-09-20 — the gitignore + intent-to-add ceremony is
   gone).
