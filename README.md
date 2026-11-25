@@ -9,7 +9,7 @@ Declarative macOS setup using Nix (Lix) + nix-darwin + home-manager + flakes.
 | Package manager | **Lix** | Nix implementation, flakes on by default, clean uninstall |
 | macOS config | **nix-darwin** | System defaults, Homebrew integration, fonts |
 | User packages + dotfiles | **home-manager** | Declarative packages, symlinked configs from `dots/` |
-| Per-machine values | **`vars.nix`** | Committed; holds `hostName`, `systemUser`, `gitName`, `gitEmail` |
+| Per-machine values | **`vars/<host>.nix`** | Committed; holds `hostName`, `systemUser`, `gitName`, `gitEmail` |
 
 `flake.lock` is gitignored — each machine resolves fresh inputs on switch. Trade-off: similar (not bit-identical) environments across machines.
 
@@ -29,11 +29,12 @@ mkdir -p ~/code
 git clone https://github.com/oiwn/dotfiles.git ~/code/dotfiles
 cd ~/code/dotfiles
 
-# 5. Set your machine values in vars.nix (committed with the repo). Fields must be exact:
+# 5. Set your machine values in vars/<host>.nix (committed with the repo).
+#    Copy vars.nix.example if your host file doesn't exist yet. Fields must be exact:
 #    - hostName   must match `scutil --get LocalHostName`
 #    - systemUser must match `whoami`
 #    - gitName / gitEmail are your git author identity
-$EDITOR vars.nix
+$EDITOR "vars/$(scutil --get LocalHostName).nix"
 
 # 6. Apply (needs sudo; nix-darwin activation runs as root).
 #    --flake .#<host> resolves darwinConfigurations.<your-hostName>.
@@ -62,8 +63,20 @@ After step 6, `darwin-rebuild` is on PATH for subsequent switches (no `nix run` 
 
 herdr reads `~/.config/herdr/config.toml` — a **live file**, deliberately not
 nix-managed (herdr rewrites it at runtime; same reason pi's `settings.json`
-stays unmanaged). Minimal setup: a `[keys]` table with `prefix = "backtick"`,
-applied with `herdr config check && herdr server reload-config`.
+stays unmanaged). Nothing in nix writes this file; recreate it by hand on a
+fresh machine:
+
+```toml
+onboarding = false
+
+[keys]
+prefix = "backtick"
+
+[ui]
+window_title = "{workspace}"  # default "{hostname}: {workspace}"; drops hostname from tab titles
+```
+
+Applied with `herdr config check && herdr server reload-config`.
 
 ### Pre-existing dotfiles
 
@@ -107,7 +120,7 @@ nix-collect-garbage --dry-run        # preview only, deletes nothing
 | System default (Dock, Finder, …) | `hosts/macbook.nix` → `system.defaults` | same |
 | Dotfile content | `dots/<file>` | same (symlinks repoint to nix store) |
 | pi runtime package | `Justfile` → `pi-setup` recipe (catalog in `pi_setup.md`) | `just pi-setup` (no switch) |
-| Git identity / hostname | `vars.nix` (per-machine) | same |
+| Git identity / hostname | `vars/<host>.nix` (per-machine) | same |
 
 Remove a package: delete the line, re-run switch.
 
@@ -117,7 +130,7 @@ Remove a package: delete the line, re-run switch.
 dotfiles/
   flake.nix           # inputs + darwinConfigurations + home-manager wiring
   vars.nix.example    # template for fresh values, committed
-  vars.nix            # committed, per machine (hostName/systemUser/gitName/gitEmail)
+  vars/<host>.nix     # committed, per machine (hostName/systemUser/gitName/gitEmail)
   hosts/
     macbook.nix       # nix-darwin: system.defaults, homebrew brews/casks/fonts
   home/
@@ -155,4 +168,4 @@ Fish picks up `/opt/homebrew/bin` because `home/terminal.nix` sources `brew shel
 - **`homebrew.onActivation.cleanup = "none"`**: ad-hoc `brew install` survives switches; remove a line from this repo and run `brew uninstall` manually when you really want it gone.
 - **`homebrew.onActivation.upgrade = false`**: switches install only *missing* brews/casks — no multi-GB cask re-downloads on every `switch`. Update packages explicitly with `brew upgrade`.
 - **Dotfiles**: raw files in `dots/`, symlinked by home-manager — no inline Nix-generated configs.
-- **Personal values in `vars.nix` are committed** (de-secreted 2026-09-20): the values are machine/git identity, already public in history and commit metadata, so the old gitignored + `git add -f --intent-to-add` ceremony — and its recurring flake-eval breakage — was retired. `vars.nix.example` stays as a template; forks edit `vars.nix` to their own values.
+- **Personal values in `vars/<host>.nix` are committed** (de-secreted 2026-09-20): the values are machine/git identity, already public in history and commit metadata, so the old gitignored + `git add -f --intent-to-add` ceremony — and its recurring flake-eval breakage — was retired. `vars.nix.example` stays as a template; forks edit the appropriate `vars/<host>.nix` file.

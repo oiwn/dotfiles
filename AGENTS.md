@@ -15,6 +15,13 @@ specs/ content here.
   own terminal.
 - **Default loop: edit files, then hand over.** After edits, print the apply
   command(s) below and ask the user to run them. Do not attempt to run them.
+- **Live config exceptions — edit directly, never nix-manage.**
+  `~/.config/herdr/config.toml` and `~/.config/pi/agent/settings.json` are
+  rewritten by their apps at runtime, so they are deliberately NOT managed by
+  home-manager (a store symlink gets silently replaced — specs/overview.md).
+  Never move them into `dots/`. Edit in place, then hand the app-specific apply
+  to the user (`herdr config check && herdr server reload-config`). Everything
+  else in this repo goes through `dots/` + switch.
 - Read-only inspection (ls, rg, cat, git status/diff/log, nix flake show, etc.)
   is always fine.
 
